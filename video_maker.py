@@ -1,46 +1,59 @@
-from moviepy.editor import ImageClip, AudioFileClip
-from gtts import gTTS
 import os
+import asyncio
+import edge_tts
 import requests
+import subprocess
+import imageio_ffmpeg
 
-def create_video(text, image_url, output_filename="post_video.mp4"):
-    print("⏳ Video yaratilmoqda...")
+async def create_video(text, img_url="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=500&fit=crop"):
+    audio_path = "temp_audio.mp3"
+    img_path = "temp_img.jpg"
+    out_path = "output_video.mp4"
+    
     try:
-        # 1. Matndan audio yaratish (gTTS)
-        # Matn juda uzun bo'lsa videoni zerikarli qiladi, shuning uchun boshlang'ich qismini olamiz
-        short_text = text[:500] if len(text) > 500 else text
-        tts = gTTS(short_text, lang='uz')
-        audio_filename = "temp_audio.mp3"
-        tts.save(audio_filename)
-        
-        # 2. Rasmni yuklab olish
-        img_filename = "temp_image.jpg"
-        r = requests.get(image_url)
-        with open(img_filename, "wb") as f:
-            f.write(r.content)
+        # 1. Rasmni yuklab olish
+        print("Rasm yuklanmoqda...")
+        response = requests.get(img_url, timeout=10)
+        with open(img_path, 'wb') as f:
+            f.write(response.content)
             
-        # 3. Video yaratish
-        audio_clip = AudioFileClip(audio_filename)
-        duration = audio_clip.duration
+        # Matnni biroz qisqartiramiz (uzun bo'lsa)
+        clean_text = text.replace("#", "").replace("*", "")
+        if len(clean_text) > 400:
+            clean_text = clean_text[:400] + "..."
+            
+        # 2. Audio generatsiya (Edge TTS - bepul va token kerak emas)
+        print("Ovoz yaratilmoqda...")
+        communicate = edge_tts.Communicate(clean_text, "uz-UZ-MadinaNeural")
+        await communicate.save(audio_path)
         
-        image_clip = ImageClip(img_filename).set_duration(duration)
+        # 3. FFMPEG orqali video yasash
+        print("Video yig'ilmoqda...")
+        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
         
-        video = image_clip.set_audio(audio_clip)
+        cmd = [
+            ffmpeg_exe,
+            "-loop", "1",
+            "-i", img_path,
+            "-i", audio_path,
+            "-c:v", "libx264",
+            "-tune", "stillimage",
+            "-c:a", "aac",
+            "-b:a", "192k",
+            "-pix_fmt", "yuv420p",
+            "-shortest",
+            "-y", out_path
+        ]
         
-        # Ekstremal kichik hajm va tezkor render uchun past fps
-        video.write_videofile(output_filename, fps=1, codec="libx264", audio_codec="aac")
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         
-        # Vaqtinchalik fayllarni o'chirish
-        os.remove(audio_filename)
-        os.remove(img_filename)
-        
-        print(f"✅ Video muvaffaqiyatli yaratildi: {output_filename}")
-        return output_filename
+        # Tozalash
+        if os.path.exists(audio_path):
+            os.remove(audio_path)
+        if os.path.exists(img_path):
+            os.remove(img_path)
+            
+        return out_path
     except Exception as e:
-        print(f"❌ Video yaratishda xatolik: {e}")
+        print(f"Video yaratishda xatolik: {e}")
         return None
-
-if __name__ == "__main__":
-    test_text = "Bu sinov videosi. Doping qoidalari sportchilar uchun juda muhimdir."
-    test_img = "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=500&fit=crop"
-    create_video(test_text, test_img)

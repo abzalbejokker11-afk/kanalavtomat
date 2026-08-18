@@ -4,8 +4,8 @@ APScheduler
 aiogram
 flask
 google-generativeai
-moviepy==1.0.3
-gTTS
+edge-tts
+imageio-ffmpeg
 Pillow
 python-dotenv
 urllib3
