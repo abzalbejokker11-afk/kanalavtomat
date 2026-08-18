@@ -62,7 +62,17 @@ Sarlavhani "📌 Antidoping Tarixi va Qoidalari" deb boshla va davlatlarni aniq 
         return response.text
     except Exception as e:
         print(f"Gemini API xatosi (Yangilik): {e}")
-        return f"❌ Gemini (AI) kalitingizda xato bor! Google qaytargan javob: {e}"
+        # FALLBACK: Use DuckDuckGo Chat for free, no API key required!
+        print("DuckDuckGo Chat (bepul AI) ga o'tilmoqda...")
+        try:
+            from duckduckgo_search import DDGS
+            ddgs = DDGS()
+            ddg_prompt = prompt + "\n\nIltimos, o'zbek tilida yoz."
+            resp = ddgs.chat(ddg_prompt, model="gpt-4o-mini")
+            return resp
+        except Exception as e2:
+            print(f"DuckDuckGo Chat xatosi: {e2}")
+            return f"❌ Gemini (AI) kalitingiz yaroqsiz! Google xatosi: {e}\n\nMuqobil AI ham ishlamadi."
 
 if __name__ == "__main__":
     post = generate_news_post()
