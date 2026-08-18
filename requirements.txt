@@ -1,0 +1,11 @@
+requests
+beautifulsoup4
+schedule
+flask
+google-generativeai
+moviepy==1.0.3
+gTTS
+Pillow
+python-dotenv
+urllib3
+duckduckgo-search

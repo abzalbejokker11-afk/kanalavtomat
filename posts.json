@@ -1,0 +1,47 @@
+[
+  {
+    "text": "Siz \"antidoping\" deganda faqat jazo va taqiqlarni tushunasizmi? Aslida unday emas!\n\nButunjahon antidoping agentligi (WADA)ning asosiy maqsadi — sportchilar salomatligini himoya qilish va halol raqobatni (Fair Play) ta'minlashdir. Taqiqlangan moddalar nafaqat natijani sun'iy oshiradi, balki yurak xuruji, buyrak yetishmovchiligi va ruhiy buzilishlarga olib kelishi mumkin.\n\nSport — bu inson imkoniyatlarining sof namoyishi. Doping esa bu go'zallikni yo'q qiladi. O'z sog'lig'ingizni asrang va toza sport tarafdori bo'ling!",
+    "image_prompt": "A conceptual 3D illustration of a clean athlete running on a track, with a glowing green shield symbolizing protection and fair play, modern sports aesthetic",
+    "search_prompts": [
+      "clean athlete track",
+      "WADA anti doping logo",
+      "fair play sports"
+    ]
+  },
+  {
+    "text": "Sportchi kasal bo'lsa, dori ichishi taqiqlanganmi?\n\nYo'q, buning qonuniy yo'li bor. Bu \"Terapevtik istisnolar\" (TUE) deb ataladi. Agar sportchiga sog'lig'i tufayli tarkibida taqiqlangan modda bo'lgan dori zarur bo'lsa, u shifokor xulosasi bilan WADAga murojaat qiladi.\n\nMuhim shartlar:\n1. Dorisiz sportchining sog'lig'iga jiddiy zarar yetishi kerak.\n2. Dori sportchiga boshqalardan ortiqcha ustunlik bermasligi lozim.\n3. Muqobil ruxsat etilgan dori vositasi bo'lmasligi kerak.\n\nHamma narsa qonun doirasida bo'lsa, chetlatish xavfi yo'q! Sog'lig'ingizga befarq bo'lmang.",
+    "image_prompt": "An athlete consulting with a professional doctor in a clinic, showing medical documents, bright and professional lighting",
+    "search_prompts": [
+      "athlete doctor consultation",
+      "medical exemption sports",
+      "therapeutic use exemption"
+    ]
+  },
+  {
+    "text": "Diqqat, sportchi! Oddiy oqsil yoki vitamin ham doping testdan yiqitishi mumkin.\n\nBugungi kunda sport qo'shimchalari (BFQ/Supplements) bozori juda nazoratsiz. Ko'p ishlab chiqaruvchilar tarkibni to'liq yozmaydi. Mahsulotga tezroq effekt berishi uchun yashirincha gormonlar yoki stimulyatorlar qo'shilgan bo'lishi mumkin.\n\nBuni \"kontaminatsiya\" (ifloslanish) deyiladi. WADA qoidasiga ko'ra: \"Sportchi o'z organizmiga kirgan har qanday modda uchun shaxsan javobgar\". \n\nMaslahat: Faqat xalqaro sertifikatga (masalan, \"Informed Sport\") ega va tekshirilgan brendlarni tanlang.",
+    "image_prompt": "A close-up of dynamic sports supplement plastic tubs on a dark background with a neon warning sign or dynamic lighting",
+    "search_prompts": [
+      "sports supplements danger",
+      "protein powder warning",
+      "athlete reading supplement label"
+    ]
+  },
+  {
+    "text": "\"Meni qayerdan bo'lsa ham topishadi!\" — ADAMS tizimi haqida eshitganmisiz?\n\nProfessional sportchilar har kuni 1 soatlik vaqt oralig'ini va turar joylarini ADAMS tizimiga kiritishlari shart. Antidoping inspektori istalgan vaqtda — tonggi soat 5 dami yoki xorijdagi mashg'ulot paytidami kelib, doping namuna olishi mumkin.\n\nAgar sportchi 12 oy ichida 3 marta ko'rsatilgan joyda topilmasa yoki test topshirishdan qochsa, bu doping qoidabuzarligi hisoblanadi va 2 yilgacha sportdan chetlatilishi mumkin. Halollik va tartib — chempionlik poydevoridir!",
+    "image_prompt": "A modern digital smartphone screen showing a stylized GPS map app with a runner icon and time schedules, sleek tech interface",
+    "search_prompts": [
+      "ADAMS anti doping",
+      "athlete whereabouts testing",
+      "doping control officer"
+    ]
+  },
+  {
+    "text": "Dopingni yashirish endi imkonsiz! Biologik pasport nima?\n\nEski usulda faqat ma'lum bir dori organizmda bor-yo'qligi tekshirilardi. Hozirgi zamonaviy usul — Sportchining Biologik Pasporti (ABP) hisoblanadi. Bunda dorining o'zi emas, balki uning organizmga ta'siri yillar davomida kuzatiladi.\n\nMasalan, qondagi gemoglobin yoki gormonlar miqdori keskin o'zgarsa, tizim darhol signal beradi. Bu tana ko'rsatkichlarining shaxsiy \"barmoq izi\" kabidir. Uni aldashning iloji yo'q. Texnologiya toza sport xizmatida!",
+    "image_prompt": "A futuristic digital DNA double helix and blood cells integrated into a high-tech passport graphic, dark blue laboratory theme",
+    "search_prompts": [
+      "athlete biological passport",
+      "blood doping test",
+      "sports laboratory testing"
+    ]
+  }
+]

@@ -1,0 +1,41 @@
+name: AutoPost to Telegram
+
+on:
+  schedule:
+    # O'zbekiston vaqti 10:00 (UTC 05:00)
+    - cron: '0 5 * * *'
+  workflow_dispatch: # Qo'lda GitHub saytidan ishga tushirish uchun
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # posts.json o'zgarishini saqlash uchun ruxsat kerak
+      
+    steps:
+      - name: Repozitoriyni yuklab olish
+        uses: actions/checkout@v4
+
+      - name: Python'ni o'rnatish
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Kutubxonalarni o'rnatish
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pillow google-generativeai duckduckgo-search
+
+      - name: Post yuborish
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+        run: python autopost.py yuborish
+
+      - name: O'zgarishlarni (qolgan postlarni) saqlash
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add posts.json
+          git commit -m "Bitta post yuborildi, ro'yxat yangilandi" || echo "Hech qanday o'zgarish yo'q"
+          git push
