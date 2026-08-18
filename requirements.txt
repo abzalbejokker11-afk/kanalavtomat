@@ -1,6 +1,7 @@
 requests
 beautifulsoup4
-schedule
+APScheduler
+aiogram
 flask
 google-generativeai
 moviepy==1.0.3
