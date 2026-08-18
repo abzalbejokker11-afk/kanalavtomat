@@ -31,6 +31,36 @@ def get_latest_doping_news():
         print(f"Yangilik qidirishda xatolik: {e}")
         return None
 
+import urllib.parse
+import xml.etree.ElementTree as ET
+import html
+
+def get_rss_news_fallback():
+    url = "https://news.google.com/rss/search?q=doping+sports+scandal&hl=en-US&gl=US&ceid=US:en"
+    try:
+        r = requests.get(url, timeout=10)
+        root = ET.fromstring(r.content)
+        items = root.findall('.//item')
+        if items:
+            top_item = items[0]
+            title = top_item.find('title').text
+            
+            # Tarjima qilish
+            title_encoded = urllib.parse.quote(title)
+            trans_url = f"https://api.mymemory.translated.net/get?q={title_encoded}&langpair=en|uz"
+            tr_res = requests.get(trans_url, timeout=10).json()
+            uz_title = tr_res['responseData']['translatedText']
+            uz_title = html.unescape(uz_title)
+            
+            link = top_item.find('link').text
+            pubDate = top_item.find('pubDate').text
+            
+            return f"🌐 JAHON DOPING YANGILIKLARI\n\n📌 {uz_title}\n\n🗓 {pubDate}\n\n🔗 Manba: {link}"
+    except Exception as e:
+        print(f"RSS xatosi: {e}")
+        return None
+    return None
+
 def generate_news_post():
     news = get_latest_doping_news()
     
@@ -62,7 +92,7 @@ Sarlavhani "📌 Antidoping Tarixi va Qoidalari" deb boshla va davlatlarni aniq 
         return response.text
     except Exception as e:
         print(f"Gemini API xatosi (Yangilik): {e}")
-        # FALLBACK: Use DuckDuckGo Chat for free, no API key required!
+        # FALLBACK 1: DuckDuckGo Chat
         print("DuckDuckGo Chat (bepul AI) ga o'tilmoqda...")
         try:
             from duckduckgo_search import DDGS
@@ -72,7 +102,12 @@ Sarlavhani "📌 Antidoping Tarixi va Qoidalari" deb boshla va davlatlarni aniq 
             return resp
         except Exception as e2:
             print(f"DuckDuckGo Chat xatosi: {e2}")
-            return f"❌ Gemini (AI) kalitingiz yaroqsiz! Google xatosi: {e}\n\nMuqobil AI ham ishlamadi."
+            # FALLBACK 2: RSS + Auto Translate (100% ishonchli, AI kerak emas)
+            print("RSS Fallback ga o'tilmoqda...")
+            rss_news = get_rss_news_fallback()
+            if rss_news:
+                return rss_news
+            return f"❌ Barcha urinishlar barbod bo'ldi. Internet tarmog'ida muammo bor. Xato: {e2}"
 
 if __name__ == "__main__":
     post = generate_news_post()
