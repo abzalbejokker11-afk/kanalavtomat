@@ -35,7 +35,7 @@ def generate_news_post():
     news = get_latest_doping_news()
     
     genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
     if news:
         prompt = f"""Sen o'zbek tilida WADA va UzNADA qoidalariga asoslangan yirik sport va antidoping kanalini yurituvchi mutaxassissan. 
