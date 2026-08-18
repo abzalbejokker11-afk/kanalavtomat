@@ -62,7 +62,7 @@ Sarlavhani "📌 Antidoping Tarixi va Qoidalari" deb boshla va davlatlarni aniq 
         return response.text
     except Exception as e:
         print(f"Gemini API xatosi (Yangilik): {e}")
-        return "❌ Hozircha yangiliklarni yuklab olishda kichik nosozlik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring."
+        return f"❌ Gemini (AI) kalitingizda xato bor! Google qaytargan javob: {e}"
 
 if __name__ == "__main__":
     post = generate_news_post()
