@@ -1,6 +1,6 @@
 import os
 import asyncio
-import edge_tts
+from gtts import gTTS
 import requests
 import random
 try:
@@ -71,13 +71,10 @@ def create_video(text, img_url=None):
         if len(clean_text) > 400:
             clean_text = clean_text[:400] + "..."
             
-        print("Ovoz yaratilmoqda...")
-        communicate = edge_tts.Communicate(clean_text, "uz-UZ-SardorNeural") # SardorNeural
-        
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(communicate.save(audio_path))
-        loop.close()
+        print("Ovoz yaratilmoqda (gTTS bilan)...")
+        # gTTS yordamida uzbek tilida MP3 yaratish (Render tomonidan bloklanmaydi!)
+        tts = gTTS(text=clean_text, lang='uz', slow=False)
+        tts.save(audio_path)
         
         print("Rasmlar yuklanmoqda...")
         queries = ["sports competition", "athlete stadium", "running track", "olympics", "doping sports"]

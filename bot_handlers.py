@@ -50,35 +50,34 @@ async def async_news_job(bot: Bot):
 
 from aiogram.types import Message, BotCommand, FSInputFile, InputMediaPhoto
 
-import requests
-
 async def async_video_job(bot: Bot = None):
     try:
-        # Gibrid Arxitektura: Og'ir videoni Renderda emas, GitHub Actions orqali bajaramiz!
-        print("GitHub Actions ga signal (repository_dispatch) yuborilmoqda...")
+        loop = asyncio.get_event_loop()
+        # Yangi skript yozamiz
+        text = await loop.run_in_executor(None, news_scraper.generate_video_script)
         
-        GITHUB_PAT = os.environ.get("GITHUB_PAT", "")
-        REPO_OWNER = "abzalbejokker11-afk"
-        REPO_NAME = "kanalavtomat"
+        img_url = None
+        audio_file, images, v_err = await loop.run_in_executor(None, video_maker.create_video, text, img_url)
         
-        url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/dispatches"
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-            "Authorization": f"token {GITHUB_PAT}"
-        }
-        data = {
-            "event_type": "trigger_video"
-        }
-        
-        response = requests.post(url, headers=headers, json=data)
-        
-        if response.status_code == 204:
-            return True, "✅ Buyruq muvaffaqiyatli qabul qilindi. Video (Podkast) GitHub orqali tayyorlanib, 1 daqiqa ichida kanalga avtomat tashlanadi!"
-        else:
-            return False, f"GitHub Actions xatosi: {response.status_code} - {response.text}"
+        if audio_file and images:
+            # 1. Rasmlarni karusel (MediaGroup) qilib yuborish
+            media_group = [InputMediaPhoto(media=FSInputFile(img)) for img in images]
+            if media_group:
+                await bot.send_media_group(chat_id=CHANNEL_ID, media=media_group)
             
+            # 2. Ovozli xabarni yuborish
+            voice_input = FSInputFile(audio_file)
+            await bot.send_voice(chat_id=CHANNEL_ID, voice=voice_input, caption=text[:300] + "...\n\n🎤 *Podkast*", parse_mode="Markdown")
+            
+            # Tozalash
+            os.remove(audio_file)
+            for img in images:
+                if os.path.exists(img):
+                    os.remove(img)
+            return True, "✅ Muvaffaqiyatli"
+        return False, f"Ovoz yoki rasm yaratilmadi. (video_maker xatosi: {v_err})"
     except Exception as e:
-        print(f"Video signal yuborishda xato: {e}")
+        print(f"Video yuborishda xato: {e}")
         return False, str(e)
 
 # --- HANDLERLAR ---
