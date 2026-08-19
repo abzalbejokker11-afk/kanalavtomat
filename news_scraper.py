@@ -64,8 +64,8 @@ def get_rss_news_fallback():
 def generate_news_post():
     news = get_latest_doping_news()
     
-    genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    # Yangi DEEPSEEK API KEY o'rnatildi!
+    DEEPSEEK_KEY = os.environ.get("DEEPSEEK_KEY", "")
     
     if news:
         prompt = f"""Sen o'zbek tilida WADA va UzNADA qoidalariga asoslangan yirik sport va antidoping kanalini yurituvchi mutaxassissan. 
@@ -87,27 +87,45 @@ WADA yoki UzNADA qoidalaridan bitta juda muhim va qiziqarli faktni yoki tarixda 
 (masalan, Rossiya dopingi, Lance Armstrong yoki Afrikadagi yengil atletikachilar) eslatma sifatida yozib ber. 
 Sarlavhani "📌 Antidoping Tarixi va Qoidalari" deb boshla va davlatlarni aniq tilga ol."""
 
+    print("DeepSeek AI ga murojaat qilinmoqda...")
+    headers = {
+        "Authorization": f"Bearer {DEEPSEEK_KEY}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "You are a professional sports and anti-doping journalist writing in Uzbek."},
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": 1000
+    }
+    
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        response = requests.post("https://api.deepseek.com/chat/completions", headers=headers, json=data, timeout=30)
+        
+        if response.status_code == 200:
+            return response.json()['choices'][0]['message']['content']
+        elif response.status_code == 402:
+            print("DeepSeek API: Insufficient Balance")
+            error_msg = "DeepSeek API 402"
+        else:
+            print(f"DeepSeek API Error: {response.text}")
+            error_msg = f"DeepSeek Xatosi: {response.status_code}"
+            
     except Exception as e:
-        print(f"Gemini API xatosi (Yangilik): {e}")
-        # FALLBACK 1: DuckDuckGo Chat
-        print("DuckDuckGo Chat (bepul AI) ga o'tilmoqda...")
-        try:
-            from duckduckgo_search import DDGS
-            ddgs = DDGS()
-            ddg_prompt = prompt + "\n\nIltimos, o'zbek tilida yoz."
-            resp = ddgs.chat(ddg_prompt, model="gpt-4o-mini")
-            return resp
-        except Exception as e2:
-            print(f"DuckDuckGo Chat xatosi: {e2}")
-            # FALLBACK 2: RSS + Auto Translate (100% ishonchli, AI kerak emas)
-            print("RSS Fallback ga o'tilmoqda...")
-            rss_news = get_rss_news_fallback()
-            if rss_news:
-                return rss_news
-            return f"❌ Barcha urinishlar barbod bo'ldi. Internet tarmog'ida muammo bor. Xato: {e2}"
+        print(f"DeepSeek ulanish xatosi: {e}")
+        error_msg = str(e)
+        
+    # FALLBACK 1: RSS + Auto Translate (100% ishonchli, AI kerak emas)
+    print("RSS Fallback ga o'tilmoqda, chunki DeepSeek ishlamadi...")
+    rss_news = get_rss_news_fallback()
+    if rss_news:
+        if "402" in error_msg:
+             return f"⚠️ *Eslatma: DeepSeek API hisobingizda pul (balans) tugaganligi sababli ushbu yangilik avtomatik RSS orqali olindi!*\n\n{rss_news}"
+        return rss_news
+    
+    return f"❌ Barcha urinishlar barbod bo'ldi. Internet tarmog'ida muammo bor. Xato: {error_msg}"
 
 if __name__ == "__main__":
     post = generate_news_post()
