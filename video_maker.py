@@ -1,7 +1,6 @@
 import os
 import asyncio
 import edge_tts
-from gtts import gTTS
 import requests
 import random
 
@@ -57,6 +56,7 @@ def create_video(text, img_url=None):
             asyncio.run(communicate.save(audio_path))
         except Exception as tts_err:
             print(f"Edge-TTS (Madina) ishlashda xatolik qildi: {tts_err}. gTTS zaxirasiga o'tilmoqda...")
+            from gtts import gTTS
             tts = gTTS(text=clean_text, lang='uz', slow=False)
             tts.save(audio_path)
             
