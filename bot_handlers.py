@@ -48,6 +48,8 @@ async def async_news_job(bot: Bot):
         return True
     return False
 
+from aiogram.types import Message, BotCommand, FSInputFile, InputMediaPhoto
+
 async def async_video_job(bot: Bot):
     if os.path.exists("posts.json"):
         with open("posts.json", "r", encoding="utf-8") as f:
@@ -55,15 +57,26 @@ async def async_video_job(bot: Bot):
         if posts:
             post = posts[0]
             text = post.get("text", "") if isinstance(post, dict) else str(post)
-            img_url = "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=500&fit=crop"
+            img_url = None
             
             loop = asyncio.get_event_loop()
-            video_file = await loop.run_in_executor(None, video_maker.create_video, text, img_url)
+            audio_file, images = await loop.run_in_executor(None, video_maker.create_video, text, img_url)
             
-            if video_file:
-                video_input = FSInputFile(video_file)
-                await bot.send_video(chat_id=CHANNEL_ID, video=video_input, caption=text[:200] + "...")
-                os.remove(video_file)
+            if audio_file and images:
+                # 1. Rasmlarni karusel (MediaGroup) qilib yuborish
+                media_group = [InputMediaPhoto(media=FSInputFile(img)) for img in images]
+                if media_group:
+                    await bot.send_media_group(chat_id=CHANNEL_ID, media=media_group)
+                
+                # 2. Ovozli xabarni yuborish
+                voice_input = FSInputFile(audio_file)
+                await bot.send_voice(chat_id=CHANNEL_ID, voice=voice_input, caption=text[:200] + "...\n\n🎤 *Sardor (Podcast)*", parse_mode="Markdown")
+                
+                # Tozalash
+                os.remove(audio_file)
+                for img in images:
+                    if os.path.exists(img):
+                        os.remove(img)
                 return True
     return False
 

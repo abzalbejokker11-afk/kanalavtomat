@@ -67,68 +67,26 @@ def download_images(query, count=5):
 
 def create_video(text, img_url=None):
     audio_path = "temp_audio.mp3"
-    out_path = "output_video.mp4"
-    slides_txt = "slides.txt"
-    images = []
     
     try:
-        # Matnni tozalash va tayyorlash
         clean_text = text.replace("#", "").replace("*", "")
         if len(clean_text) > 400:
             clean_text = clean_text[:400] + "..."
             
         print("Ovoz yaratilmoqda...")
-        communicate = edge_tts.Communicate(clean_text, "uz-UZ-SardorNeural") # SardorNeural (Erkak ovozi)
+        communicate = edge_tts.Communicate(clean_text, "uz-UZ-SardorNeural") # SardorNeural
         
-        # Asinxron methodni sinxron funksiya ichida chaqirish
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(communicate.save(audio_path))
         loop.close()
         
         print("Rasmlar yuklanmoqda...")
-        queries = ["sports competition", "athlete stadium", "running track", "olympics"]
+        queries = ["sports competition", "athlete stadium", "running track", "olympics", "doping sports"]
         images = download_images(random.choice(queries), count=5)
         
-        print("Slideshow fayli yozilmoqda...")
-        # Har bir rasm 4 soniya turadi. Audio uzun bo'lishi mumkinligini inobatga olib, rasmlarni 10 marta takrorlaymiz
-        with open(slides_txt, "w") as f:
-            for _ in range(10):
-                for img in images:
-                    f.write(f"file '{img}'\n")
-                    f.write("duration 4.0\n")
-            # Oxirgi rasm majburiy qoida
-            f.write(f"file '{images[-1]}'\n")
-            
-        print("Video yig'ilmoqda (FFMPEG slideshow)...")
-        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
-        
-        # -shortest orqali audio tugaganda video ham tugaydi
-        cmd = [
-            ffmpeg_exe,
-            "-f", "concat",
-            "-safe", "0",
-            "-i", slides_txt,
-            "-i", audio_path,
-            "-c:v", "libx264",
-            "-pix_fmt", "yuv420p",
-            "-c:a", "aac",
-            "-b:a", "192k",
-            "-shortest",
-            "-y", out_path
-        ]
-        
-        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        
-        # Tozalash
-        for f in [audio_path, slides_txt] + images:
-            if os.path.exists(f):
-                try:
-                    os.remove(f)
-                except:
-                    pass
-            
-        return out_path
+        # DeepSeek maslahati bilan FFMPEG olib tashlandi, o'rniga rasm va ovoz alohida qaytariladi!
+        return audio_path, images
     except Exception as e:
-        print(f"Video yaratishda xatolik: {e}")
-        return None
+        print(f"Video (Podkast) yaratishda xatolik: {e}")
+        return None, None
