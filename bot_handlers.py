@@ -57,7 +57,7 @@ async def async_video_job(bot: Bot):
         text = await loop.run_in_executor(None, news_scraper.generate_video_script)
         
         img_url = None
-        audio_file, images = await loop.run_in_executor(None, video_maker.create_video, text, img_url)
+        audio_file, images, v_err = await loop.run_in_executor(None, video_maker.create_video, text, img_url)
         
         if audio_file and images:
             # 1. Rasmlarni karusel (MediaGroup) qilib yuborish
@@ -74,11 +74,11 @@ async def async_video_job(bot: Bot):
             for img in images:
                 if os.path.exists(img):
                     os.remove(img)
-            return True
-        return False
+            return True, "✅ Muvaffaqiyatli"
+        return False, f"Ovoz yoki rasm yaratilmadi. (video_maker xatosi: {v_err})"
     except Exception as e:
         print(f"Video yuborishda xato: {e}")
-        return False
+        return False, str(e)
 
 # --- HANDLERLAR ---
 
@@ -94,11 +94,11 @@ async def cmd_post(message: Message, bot: Bot):
 @router.message(Command("video"))
 async def cmd_video(message: Message, bot: Bot):
     msg = await message.reply("⏳ Video yig'ilmoqda (bu biroz vaqt olishi mumkin)...")
-    success = await async_video_job(bot)
+    success, err_text = await async_video_job(bot)
     if success:
-        await msg.edit_text("✅ Video muvaffaqiyatli tayyorlandi va kanalga yuborildi!")
+        await msg.edit_text("✅ Video (Podkast) muvaffaqiyatli tayyorlandi va kanalga yuborildi!")
     else:
-        await msg.edit_text("❌ Video tayyorlash uchun post topilmadi yoki xatolik yuz berdi.")
+        await msg.edit_text(f"❌ Xatolik yuz berdi:\n\n`{err_text}`", parse_mode="Markdown")
 
 @router.message(Command("news"))
 async def cmd_news(message: Message, bot: Bot):

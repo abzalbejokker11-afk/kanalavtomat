@@ -2,8 +2,6 @@ import os
 import asyncio
 import edge_tts
 import requests
-import subprocess
-import imageio_ffmpeg
 import random
 try:
     from duckduckgo_search import DDGS
@@ -86,7 +84,7 @@ def create_video(text, img_url=None):
         images = download_images(random.choice(queries), count=5)
         
         # DeepSeek maslahati bilan FFMPEG olib tashlandi, o'rniga rasm va ovoz alohida qaytariladi!
-        return audio_path, images
+        return audio_path, images, None
     except Exception as e:
         print(f"Video (Podkast) yaratishda xatolik: {e}")
-        return None, None
+        return None, None, str(e)
