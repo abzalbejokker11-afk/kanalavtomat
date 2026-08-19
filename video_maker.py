@@ -1,17 +1,14 @@
 import os
 import asyncio
+import edge_tts
 from gtts import gTTS
 import requests
 import random
-try:
-    from duckduckgo_search import DDGS
-except ImportError:
-    pass
 
 def download_images(query, count=5):
     images = []
     
-    # 1. Wikimedia API orqali qidirish (100% tekin va bloklanmaydi)
+    # 1. Wikimedia API orqali qidirish
     print("Wikimedia orqali rasmlar qidirilmoqda...")
     url = f"https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&generator=search&gsrsearch={query}&gsrlimit=10&pithumbsize=500"
     headers = {"User-Agent": "KanalAvtomatBot/1.0"}
@@ -40,24 +37,7 @@ def download_images(query, count=5):
     except Exception as e:
         print("Wikimedia rasm qidirishda xato:", e)
     
-    # 2. Agar baribir rasm topilmasa, zaxira rasmlar (ko'plikda)
-    if not images:
-        fallback_urls = [
-            "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=500&fit=crop",
-            "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&h=500&fit=crop",
-            "https://images.unsplash.com/photo-1526506190242-25952f447703?w=500&h=500&fit=crop"
-        ]
-        for i, url in enumerate(fallback_urls):
-            try:
-                r = requests.get(url, timeout=5)
-                filename = f"slide_{i}.jpg"
-                with open(filename, "wb") as f:
-                    f.write(r.content)
-                images.append(filename)
-            except:
-                pass
-                
-    # Yana bo'sh bo'lsa (bunday bo'lmasligi kerak)
+    # Zaxira
     if not images:
         images.append("slide_0.jpg") # umidsizlik
 
@@ -68,20 +48,23 @@ def create_video(text, img_url=None):
     
     try:
         clean_text = text.replace("#", "").replace("*", "")
-        if len(clean_text) > 400:
-            clean_text = clean_text[:400] + "..."
-            
-        print("Ovoz yaratilmoqda (gTTS bilan)...")
-        # gTTS yordamida uzbek tilida MP3 yaratish (Render tomonidan bloklanmaydi!)
-        tts = gTTS(text=clean_text, lang='uz', slow=False)
-        tts.save(audio_path)
+        # Madina diktatordek o'qishi uchun ohang va balandlikni to'g'rilaymiz
+        print("Madina ovozi (edge-tts) orqali yasalmoqda...")
         
+        try:
+            # rate=+10% tezroq va pitch=-5Hz jiddiyroq
+            communicate = edge_tts.Communicate(clean_text, "uz-UZ-MadinaNeural", rate="+10%", pitch="-5Hz")
+            asyncio.run(communicate.save(audio_path))
+        except Exception as tts_err:
+            print(f"Edge-TTS (Madina) ishlashda xatolik qildi: {tts_err}. gTTS zaxirasiga o'tilmoqda...")
+            tts = gTTS(text=clean_text, lang='uz', slow=False)
+            tts.save(audio_path)
+            
         print("Rasmlar yuklanmoqda...")
-        queries = ["sports competition", "athlete stadium", "running track", "olympics", "doping sports"]
+        queries = ["sports competition", "athlete stadium", "running track", "olympics", "doping sports", "wada"]
         images = download_images(random.choice(queries), count=5)
         
-        # DeepSeek maslahati bilan FFMPEG olib tashlandi, o'rniga rasm va ovoz alohida qaytariladi!
         return audio_path, images, None
     except Exception as e:
-        print(f"Video (Podkast) yaratishda xatolik: {e}")
+        print(f"Video yaratishda xatolik: {e}")
         return None, None, str(e)

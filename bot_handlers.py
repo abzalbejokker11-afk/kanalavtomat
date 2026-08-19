@@ -84,12 +84,12 @@ async def async_video_job(bot: Bot = None):
 
 @router.message(Command("post"))
 async def cmd_post(message: Message, bot: Bot):
-    msg = await message.reply("⏳ Post tayyorlanmoqda va kanalga yuborilmoqda...")
-    success = await async_post_job(bot)
+    msg = await message.reply("⏳ Ovozli xabar va rasmlar tayyorlanmoqda (Madina ovozi bilan)...")
+    success, err_text = await async_video_job(bot)
     if success:
-        await msg.edit_text("✅ Post muvaffaqiyatli kanalga yuborildi!")
+        await msg.edit_text("✅ Ovozli xabar muvaffaqiyatli kanalga yuborildi!")
     else:
-        await msg.edit_text("❌ Hozircha tayyor postlar yo'q. 'posts.json' ni tekshiring.")
+        await msg.edit_text(f"❌ Xatolik yuz berdi:\n\n`{err_text}`", parse_mode="Markdown")
 
 @router.message(Command("video"))
 async def cmd_video(message: Message, bot: Bot):
