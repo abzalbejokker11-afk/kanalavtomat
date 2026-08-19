@@ -62,76 +62,17 @@ def get_rss_news_fallback():
     return None
 
 def generate_news_post():
-    news = get_latest_doping_news()
+    print("Foydalanuvchi talabiga binoan AI o'chirildi, to'g'ridan-to'g'ri RSS ga o'tilmoqda...")
     
-    # Yangi DEEPSEEK API KEY o'rnatildi!
-    DEEPSEEK_KEY = os.environ.get("DEEPSEEK_KEY", "")
-    
-    if news:
-        prompt = f"""Sen o'zbek tilida WADA va UzNADA qoidalariga asoslangan yirik sport va antidoping kanalini yurituvchi mutaxassissan. 
-Quyidagi jahon yangiligini o'qib, kanal obunachilariga tahliliy, vahimali bo'lmagan, lekin ogohlantiruvchi qiziqarli post yozib ber. 
-QATTİY TALAB: Yangilik aynan qaysi davlat, qit'a (masalan, Afrika, Yevropa, AQSh) yoki tashkilotda bo'layotganligini aniq ajratib ko'rsat!
-
-Matnni "🌐 Jahon Doping Yangiliklari" degan mazmunda boshla.
-Post oxirida manba sifatida ushbu havolani ({news['url']}) qoldir.
-
-Yangilik sarlavhasi: {news['title']}
-Skanerlangan qisqacha mazmuni: {news['body']}
-Manba: {news['source']}
-"""
-    else:
-        # MUQOBIL VERSIYA (Fallback): Agar internetdan topa olmasa, o'zi bitta tarixiy/qoida yangiligini yasaydi
-        prompt = """Sen o'zbek tilida yirik sport va antidoping kanalini yurituvchi mutaxassissan. 
-Ayni damda internetdan so'nggi daqiqadagi yangilik topilmadi, shuning uchun obunachilarni bexabar qoldirmaslik uchun 
-WADA yoki UzNADA qoidalaridan bitta juda muhim va qiziqarli faktni yoki tarixda ro'y bergan eng shov-shuvli doping janjalini 
-(masalan, Rossiya dopingi, Lance Armstrong yoki Afrikadagi yengil atletikachilar) eslatma sifatida yozib ber. 
-Sarlavhani "📌 Antidoping Tarixi va Qoidalari" deb boshla va davlatlarni aniq tilga ol."""
-
-    print("DeepSeek AI ga murojaat qilinmoqda...")
-    headers = {
-        "Authorization": f"Bearer {DEEPSEEK_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "deepseek-chat",
-        "messages": [
-            {"role": "system", "content": "You are a professional sports and anti-doping journalist writing in Uzbek."},
-            {"role": "user", "content": prompt}
-        ],
-        "max_tokens": 1000
-    }
-    
-    try:
-        response = requests.post("https://api.deepseek.com/chat/completions", headers=headers, json=data, timeout=30)
-        
-        if response.status_code == 200:
-            return response.json()['choices'][0]['message']['content']
-        elif response.status_code == 402:
-            print("DeepSeek API: Insufficient Balance")
-            error_msg = "DeepSeek API 402"
-        else:
-            print(f"DeepSeek API Error: {response.text}")
-            error_msg = f"DeepSeek Xatosi: {response.status_code}"
-            
-    except Exception as e:
-        print(f"DeepSeek ulanish xatosi: {e}")
-        error_msg = str(e)
-        
-    # FALLBACK 1: RSS + Auto Translate (100% ishonchli, AI kerak emas)
-    print("RSS Fallback ga o'tilmoqda, chunki DeepSeek ishlamadi...")
     rss_news = get_rss_news_fallback()
     if rss_news:
-        if "402" in error_msg:
-             return f"⚠️ *Eslatma: DeepSeek API hisobingizda pul (balans) tugaganligi sababli ushbu yangilik avtomatik RSS orqali olindi!*\n\n{rss_news}"
         return rss_news
     
-    return f"❌ Barcha urinishlar barbod bo'ldi. Internet tarmog'ida muammo bor. Xato: {error_msg}"
+    return f"❌ Barcha urinishlar barbod bo'ldi. Internet tarmog'ida yoki Google RSS'da muammo bor."
 
 import random
 
 def generate_video_script():
-    DEEPSEEK_KEY = os.environ.get("DEEPSEEK_KEY", "")
-    
     # 20 ta eng dolzarb va muhokamali doping mavzulari!
     topics = [
         "Jahon sportida qon dopingi (Blood doping) qanday ishlaydi va nima uchun xavfli?",
@@ -158,35 +99,6 @@ def generate_video_script():
     
     selected_topic = random.choice(topics)
     
-    prompt = f"""Sen o'zbek tilida professional sport va antidoping mutaxassisining videosi uchun qisqa, juda ta'sirchan va dolzarb matn (skript) yozib berishing kerak.
-    
-Mavzu: {selected_topic}
-
-Matn hajmi 3-4 gapdan oshmasin (diktor o'qishi uchun qisqa va londa bo'lsin).
-Hech qanday salomlashish yoki keraksiz so'zlarsiz to'g'ridan-to'g'ri faktga, vahimali yoki juda qiziqarli ma'lumotga o't. 
-Oxirida sportchilarni toza sportga chorlovchi bitta kuchli chaqiriq (motivatsiya) bilan yakunla."""
-
-    headers = {
-        "Authorization": f"Bearer {DEEPSEEK_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "deepseek-chat",
-        "messages": [
-            {"role": "system", "content": "You are a professional script writer for sports documentaries in Uzbek."},
-            {"role": "user", "content": prompt}
-        ],
-        "max_tokens": 300
-    }
-    
-    try:
-        response = requests.post("https://api.deepseek.com/chat/completions", headers=headers, json=data, timeout=15)
-        if response.status_code == 200:
-            return response.json()['choices'][0]['message']['content']
-    except:
-        pass
-    
-    # Agar DeepSeek ishlamasa (Balans tugagan yoki xato), oddiy RSS/fallback formatida yozamiz
     return f"🛑 {selected_topic}\n\nDoping — bu nafaqat faoliyatingizni, balki hayotingizni ham barbod qiluvchi zahar! Sportdagi g'alaba hech qachon sog'lig'ingizdan ustun bo'lishi mumkin emas. Halol sport — chinakam chempionlar tanlovi!\n\n#TozaSport #UzNADA #WADA"
 
 if __name__ == "__main__":
