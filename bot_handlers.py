@@ -57,7 +57,8 @@ async def async_video_job(bot: Bot):
             text = post.get("text", "") if isinstance(post, dict) else str(post)
             img_url = "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=500&fit=crop"
             
-            video_file = await video_maker.create_video(text, img_url)
+            loop = asyncio.get_event_loop()
+            video_file = await loop.run_in_executor(None, video_maker.create_video, text, img_url)
             
             if video_file:
                 video_input = FSInputFile(video_file)

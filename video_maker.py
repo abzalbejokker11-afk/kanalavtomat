@@ -10,7 +10,7 @@ try:
 except ImportError:
     pass
 
-async def download_images(query, count=5):
+def download_images(query, count=5):
     images = []
     
     # 1. Wikimedia API orqali qidirish (100% tekin va bloklanmaydi)
@@ -65,7 +65,7 @@ async def download_images(query, count=5):
 
     return images
 
-async def create_video(text, img_url=None):
+def create_video(text, img_url=None):
     audio_path = "temp_audio.mp3"
     out_path = "output_video.mp4"
     slides_txt = "slides.txt"
@@ -79,11 +79,16 @@ async def create_video(text, img_url=None):
             
         print("Ovoz yaratilmoqda...")
         communicate = edge_tts.Communicate(clean_text, "uz-UZ-SardorNeural") # SardorNeural (Erkak ovozi)
-        await communicate.save(audio_path)
+        
+        # Asinxron methodni sinxron funksiya ichida chaqirish
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(communicate.save(audio_path))
+        loop.close()
         
         print("Rasmlar yuklanmoqda...")
         queries = ["sports competition", "athlete stadium", "running track", "olympics"]
-        images = await download_images(random.choice(queries), count=5)
+        images = download_images(random.choice(queries), count=5)
         
         print("Slideshow fayli yozilmoqda...")
         # Har bir rasm 4 soniya turadi. Audio uzun bo'lishi mumkinligini inobatga olib, rasmlarni 10 marta takrorlaymiz
