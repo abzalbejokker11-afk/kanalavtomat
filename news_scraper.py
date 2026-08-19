@@ -127,6 +127,68 @@ Sarlavhani "📌 Antidoping Tarixi va Qoidalari" deb boshla va davlatlarni aniq 
     
     return f"❌ Barcha urinishlar barbod bo'ldi. Internet tarmog'ida muammo bor. Xato: {error_msg}"
 
+import random
+
+def generate_video_script():
+    DEEPSEEK_KEY = os.environ.get("DEEPSEEK_KEY", "")
+    
+    # 20 ta eng dolzarb va muhokamali doping mavzulari!
+    topics = [
+        "Jahon sportida qon dopingi (Blood doping) qanday ishlaydi va nima uchun xavfli?",
+        "Rossiya Olimpiya qo'mitasining doping mojarosi va uning tarixiy oqibatlari",
+        "Lance Armstrong qanday qilib yillar davomida WADA ni aldab kelgan?",
+        "Meldoniy mojarosi: Sharqiy Yevropa sportchilarining ommaviy diskvalifikatsiyasi",
+        "Yengil atletikada anabolik steroidlar va ularning inson organizmiga halokatli ta'siri",
+        "Xitoy suzuvchilarining Tokio Olimpiadasi oldidan ommaviy musbat doping-testlari",
+        "Testosteron va ayol sportchilardagi gender mojarolari (Caster Semenya ishi)",
+        "Doping-nazoratchilardan qochish sirlari: Sochi-2014 qishki Olimpiadasidagi teshik devorlar",
+        "Og'ir atletikada doping qanday qilib butun bir sport turini Olimpiadadan chetlatishiga olib keldi?",
+        "O'zbekistonda UzNADA faoliyati va yosh sportchilarni dopingdan himoya qilish",
+        "WADA ning eng yangi taqiqlangan dorilar ro'yxati va ehtiyotsizlik qurbonlari",
+        "Bio-pasport (Athlete Biological Passport) qanday qilib qon dopingini fosh qilmoqda?",
+        "Mashhur futbolchilardagi doping janjallari (Diego Maradona, Pol Pogba ishi)",
+        "UFC va aralash jang san'atlarida USADA ning qattiqqo'l doping tekshiruvlari",
+        "EPO (Eritropoetin) moddasining velosportdagi qora tarixi",
+        "Paralimpiya o'yinlarida doping: Imkoniyati cheklangan sportchilar nima uchun doping qabul qiladi?",
+        "Doping tufayli umrbod diskvalifikatsiya qilingan 5 ta eng mashhur sportchi",
+        "Doping vs Genetika: Kelajakda genetik modifikatsiya (Gen dopingi) xavfi",
+        "Sport oziq-ovqatlari va protestinlardagi yashirin doping moddalari",
+        "Doping faqat g'alaba emas, balki to'satdan o'limga ham olib kelishi haqida tibbiy faktlar"
+    ]
+    
+    selected_topic = random.choice(topics)
+    
+    prompt = f"""Sen o'zbek tilida professional sport va antidoping mutaxassisining videosi uchun qisqa, juda ta'sirchan va dolzarb matn (skript) yozib berishing kerak.
+    
+Mavzu: {selected_topic}
+
+Matn hajmi 3-4 gapdan oshmasin (diktor o'qishi uchun qisqa va londa bo'lsin).
+Hech qanday salomlashish yoki keraksiz so'zlarsiz to'g'ridan-to'g'ri faktga, vahimali yoki juda qiziqarli ma'lumotga o't. 
+Oxirida sportchilarni toza sportga chorlovchi bitta kuchli chaqiriq (motivatsiya) bilan yakunla."""
+
+    headers = {
+        "Authorization": f"Bearer {DEEPSEEK_KEY}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "You are a professional script writer for sports documentaries in Uzbek."},
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": 300
+    }
+    
+    try:
+        response = requests.post("https://api.deepseek.com/chat/completions", headers=headers, json=data, timeout=15)
+        if response.status_code == 200:
+            return response.json()['choices'][0]['message']['content']
+    except:
+        pass
+    
+    # Agar DeepSeek ishlamasa (Balans tugagan yoki xato), oddiy RSS/fallback formatida yozamiz
+    return f"🛑 {selected_topic}\n\nDoping — bu nafaqat faoliyatingizni, balki hayotingizni ham barbod qiluvchi zahar! Sportdagi g'alaba hech qachon sog'lig'ingizdan ustun bo'lishi mumkin emas. Halol sport — chinakam chempionlar tanlovi!\n\n#TozaSport #UzNADA #WADA"
+
 if __name__ == "__main__":
     post = generate_news_post()
     print("YANGILIK POSTI:\n", post)

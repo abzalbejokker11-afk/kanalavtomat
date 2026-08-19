@@ -51,34 +51,34 @@ async def async_news_job(bot: Bot):
 from aiogram.types import Message, BotCommand, FSInputFile, InputMediaPhoto
 
 async def async_video_job(bot: Bot):
-    if os.path.exists("posts.json"):
-        with open("posts.json", "r", encoding="utf-8") as f:
-            posts = json.load(f)
-        if posts:
-            post = posts[0]
-            text = post.get("text", "") if isinstance(post, dict) else str(post)
-            img_url = None
+    try:
+        loop = asyncio.get_event_loop()
+        # Yangi skript yozamiz
+        text = await loop.run_in_executor(None, news_scraper.generate_video_script)
+        
+        img_url = None
+        audio_file, images = await loop.run_in_executor(None, video_maker.create_video, text, img_url)
+        
+        if audio_file and images:
+            # 1. Rasmlarni karusel (MediaGroup) qilib yuborish
+            media_group = [InputMediaPhoto(media=FSInputFile(img)) for img in images]
+            if media_group:
+                await bot.send_media_group(chat_id=CHANNEL_ID, media=media_group)
             
-            loop = asyncio.get_event_loop()
-            audio_file, images = await loop.run_in_executor(None, video_maker.create_video, text, img_url)
+            # 2. Ovozli xabarni yuborish
+            voice_input = FSInputFile(audio_file)
+            await bot.send_voice(chat_id=CHANNEL_ID, voice=voice_input, caption=text[:300] + "...\n\n🎤 *Sardor (Podcast)*", parse_mode="Markdown")
             
-            if audio_file and images:
-                # 1. Rasmlarni karusel (MediaGroup) qilib yuborish
-                media_group = [InputMediaPhoto(media=FSInputFile(img)) for img in images]
-                if media_group:
-                    await bot.send_media_group(chat_id=CHANNEL_ID, media=media_group)
-                
-                # 2. Ovozli xabarni yuborish
-                voice_input = FSInputFile(audio_file)
-                await bot.send_voice(chat_id=CHANNEL_ID, voice=voice_input, caption=text[:200] + "...\n\n🎤 *Sardor (Podcast)*", parse_mode="Markdown")
-                
-                # Tozalash
-                os.remove(audio_file)
-                for img in images:
-                    if os.path.exists(img):
-                        os.remove(img)
-                return True
-    return False
+            # Tozalash
+            os.remove(audio_file)
+            for img in images:
+                if os.path.exists(img):
+                    os.remove(img)
+            return True
+        return False
+    except Exception as e:
+        print(f"Video yuborishda xato: {e}")
+        return False
 
 # --- HANDLERLAR ---
 

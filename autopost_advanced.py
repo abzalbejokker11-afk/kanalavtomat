@@ -31,7 +31,10 @@ async def main():
     # Kunlik reja (Vaqtlar oldingi kelishuv asosida):
     scheduler.add_job(async_post_job, 'cron', hour=8, minute=0, args=[bot])
     scheduler.add_job(async_post_job, 'cron', hour=10, minute=0, args=[bot])
-    scheduler.add_job(async_video_job, 'cron', hour=12, minute=0, args=[bot])
+    
+    # Har soatda (soat boshida) video (podkast) tayyorlab yuborish
+    scheduler.add_job(async_video_job, 'cron', minute=0, args=[bot])
+    
     scheduler.add_job(async_post_job, 'cron', hour=14, minute=0, args=[bot])
     scheduler.add_job(async_post_job, 'cron', hour=16, minute=0, args=[bot])
     scheduler.add_job(async_post_job, 'cron', hour=18, minute=0, args=[bot])
