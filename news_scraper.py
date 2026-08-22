@@ -10,36 +10,37 @@ def get_agent_generated_qa():
     if not DDGS:
         return None
         
-    seed_ideas = [
-        "Terapevtik Istisno (TUE) olish qoidalari va muddatlari",
-        "ADAMS tizimidagi 3 marta ogohlantirish qoidasi",
-        "Qon dopingi va Biologik pasport (ABP) ishlash mexanizmi",
-        "Oziq-ovqat qo'shimchalaridagi (SportPit) yashirin xavflar",
-        "Klenbuterol bilan zararlangan go'sht muammosi",
-        "Anabolik steroidlarning yurak va jigarga halokatli ta'siri",
-        "Diuretiklar nima uchun 'masking agent' hisoblanadi?",
-        "Astma kasalligi bor sportchilar qanday qilib qonuniy musobaqalashadi?",
-        "Genetik doping (Gene Doping) xavfi va test usullari",
-        "Musobaqadan tashqari testlarda Doping Ofitserning (DCO) huquqlari"
-    ]
-    
-    seed = random.choice(seed_ideas)
-    prompt = f"""
-Sen WADA (Butunjahon Antidoping Agentligi) qoidalari bo'yicha eng kuchli, ilmiy va ishonchli professor-agentsan. 
-Sening vazifang quyidagi mavzu asosida bitta juda ilmiy, professional va mukammal Savol-Javob (Q&A) yaratish. 
-Mavzu: "{seed}"
+    try:
+        ddgs = DDGS()
+        
+        # 1-QADAM: O'zini o'zi rivojlantirish uchun so'nggi yangiliklarni izlash (News Search)
+        print("Agent so'nggi doping yangiliklarini o'qimoqda...")
+        news_results = ddgs.text("WADA doping anti-doping scientific updates", max_results=3)
+        news_context = ""
+        if news_results:
+            for item in news_results:
+                news_context += f"- {item.get('title')}: {item.get('body')}\n"
+        
+        if not news_context:
+            news_context = "Terapevtik Istisno (TUE), qon dopingi va sportpitlardagi xavflar haqida umumiy ilmiy tahlil."
+
+        # 2-QADAM: Topilgan eng yangi ilmiy maqolalar asosida o'zini takomillashtirib Q&A yozish
+        prompt = f"""
+Sen WADA qoidalari bo'yicha eng kuchli, ilmiy va ishonchli professor-agentsan. 
+Sening vazifang quyidagi **bugungi kungi real yangiliklar va ilmiy ma'lumotlar** (Context) asosida bitta juda ilmiy, professional va mukammal Savol-Javob (Q&A) yaratish. Shu orqali o'zingni takomillashtirib borasan.
+
+Context (So'nggi jahon yangiliklari):
+{news_context}
 
 Talablar:
 1. Matn sof va mukammal O'zbek tilida bo'lishi shart.
 2. Formati faqat shunday bo'lsin:
-S: [jiddiy, professional savol]
+S: [yangilikka yoki qoidaga asoslangan jiddiy, professional savol]
 J: [chuqur ilmiy, WADA qoidalariga asoslangan batafsil va aniq javob]
 3. Hech qanday salomlashish, ortiqcha so'zlar qo'shilmasin! Faqat S: va J:
-4. Agar raqamlar, moddalar nomi, muddatlar kerak bo'lsa (masalan TUE uchun muddatlar), 100% to'g'ri ishlating. 
-5. Matn shunday yozilsinki, har bir sportchi xulosa chiqarsin!
+4. Agar raqamlar, moddalar nomi, muddatlar kerak bo'lsa, 100% to'g'ri ishlating. 
+5. Matn shunday yozilsinki, har bir sportchi bu faktlardan dars olsin!
 """
-    try:
-        ddgs = DDGS()
         # gpt-4o-mini ishonchliroq ishlaydi
         response = ddgs.chat(prompt, model="gpt-4o-mini")
         
