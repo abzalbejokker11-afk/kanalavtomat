@@ -1,106 +1,10 @@
 import random
 import os
-
-# Optional imports for AI agents
-try:
-    import google.generativeai as genai
-    GEMINI_AVAILABLE = True
-except ImportError:
-    GEMINI_AVAILABLE = False
-
-try:
-    from duckduckgo_search import DDGS
-except ImportError:
-    DDGS = None
-
-def get_latest_news_context():
-    """DuckDuckGo orqali eng yangi ilmiy yangiliklarni qidirish"""
-    if not DDGS:
-        return "Terapevtik Istisno (TUE), qon dopingi va sportpitlardagi xavflar haqida umumiy ilmiy tahlil."
-    try:
-        print("[Agent] So'nggi doping yangiliklari qidirilmoqda...")
-        ddgs = DDGS()
-        news_results = ddgs.text("WADA doping anti-doping scientific updates", max_results=3)
-        news_context = ""
-        if news_results:
-            for item in news_results:
-                news_context += f"- {item.get('title')}: {item.get('body')}\n"
-        
-        if not news_context:
-            return "Terapevtik Istisno (TUE), qon dopingi va sportpitlardagi xavflar haqida umumiy ilmiy tahlil."
-        return news_context
-    except Exception as e:
-        print(f"[Agent] Yangilik qidirishda xato (Tarmoq yoki DDGS cheklovi): {e}")
-        return "Terapevtik Istisno (TUE), qon dopingi va sportpitlardagi xavflar haqida umumiy ilmiy tahlil."
-
-def ask_gemini(prompt):
-    """Birlamchi Agent: Google Gemini (Eng kuchli va barqaror)"""
-    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not GEMINI_AVAILABLE or not api_key:
-        return None
-    try:
-        print("[Agent] Gemini API orqali javob olinmoqda...")
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash") # Kichik va tezkor model
-        response = model.generate_content(prompt)
-        text = response.text.strip()
-        if "S:" in text and "J:" in text:
-            return text
-        return None
-    except Exception as e:
-        print(f"[Agent] Gemini xato qildi: {e}")
-        return None
-
-def ask_ddg(prompt):
-    """Ikkilamchi Agent: DuckDuckGo Llama/GPT-4o-mini (Tekin, lekin cheklovlar bo'lishi mumkin)"""
-    if not DDGS:
-        return None
-    try:
-        print("[Agent] DuckDuckGo Chat (GPT-4o-mini) orqali javob olinmoqda...")
-        ddgs = DDGS()
-        response = ddgs.chat(prompt, model="gpt-4o-mini")
-        if response and "S:" in response and "J:" in response:
-            return response.strip()
-        return None
-    except Exception as e:
-        print(f"[Agent] DDGS Chat xato qildi: {e}")
-        return None
+from ai_generator import generate_super_post
 
 def get_agent_generated_qa():
-    news_context = get_latest_news_context()
-    
-    prompt = f"""
-Sen WADA qoidalari bo'yicha eng kuchli, ilmiy va ishonchli professor-agentsan. 
-Sening vazifang quyidagi **bugungi kungi real yangiliklar va ilmiy ma'lumotlar** (Context) asosida bitta juda ilmiy, professional va mukammal Savol-Javob (Q&A) yaratish. Shu orqali o'zingni takomillashtirib borasan.
-
-Context (So'nggi jahon yangiliklari):
-{news_context}
-
-Talablar:
-1. Matn sof va mukammal O'zbek tilida bo'lishi shart.
-2. Formati faqat shunday bo'lsin:
-S: [yangilikka yoki qoidaga asoslangan jiddiy, professional savol]
-J: [chuqur ilmiy, WADA qoidalariga asoslangan batafsil va aniq javob]
-3. Hech qanday salomlashish, qisqacha kirish so'zlari qo'shilmasin! Matn to'g'ridan-to'g'ri "S:" bilan boshlanishi shart.
-4. Agar raqamlar, moddalar nomi, muddatlar kerak bo'lsa, 100% to'g'ri ishlating. 
-5. Matn shunday yozilsinki, har bir sportchi bu faktlardan dars olsin!
-"""
-
-    # 1. Eng kuchli tahlilchi - Gemini'dan so'raymiz
-    ai_text = ask_gemini(prompt)
-    if ai_text:
-        print("[Agent] Gemini muvaffaqiyatli ishladi!")
-        return ai_text
-        
-    # 2. Agar Gemini bo'lmasa yoki xato qilsa - DDGS'dan so'raymiz
-    ai_text = ask_ddg(prompt)
-    if ai_text:
-        print("[Agent] DDGS muvaffaqiyatli ishladi!")
-        return ai_text
-        
-    # 3. Ikkalasi ham ishlamasa (masalan internet yoki API cheklovlari), zaxiraga qaytamiz
-    print("[Agent] Barcha sun'iy intellekt tarmoqlari band, oflayn zaxiraga o'tilmoqda.")
-    return None
+    # Eski kodni butunlay almashtirdik, endi ai_generator ishlaydi
+    return generate_super_post()
 
 def generate_post_script():
     ai_text = get_agent_generated_qa()
