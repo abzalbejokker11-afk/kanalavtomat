@@ -26,13 +26,12 @@ async def main():
     await set_bot_commands(bot)
     
     # APScheduler orqali vaqtga biriktirilgan vazifalarni o'rnatish
-    # scheduler = AsyncIOScheduler()
+    scheduler = AsyncIOScheduler()
     
-    # Har soatda avtomat post qilishni USER talabiga binoan o'chirdik. 
-    # Endi faqat /post bosilganda ishlaydi.
-    # scheduler.add_job(async_post_job, 'cron', minute=0, args=[bot])
+    # Har soatda (24 soat tinimsiz) post yuborish
+    scheduler.add_job(async_post_job, 'cron', minute=0, args=[bot])
     
-    # scheduler.start()
+    scheduler.start()
     
     print("✅ Aiogram Bot va Jadval ishga tushdi. Bot xabarlarni kutmoqda...")
     

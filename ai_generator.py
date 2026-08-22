@@ -70,9 +70,11 @@ Post O'ZBEK TILIDA quyidagi tuzilishda bo‘lsin:
         return None
     
     refine_prompt = f"""
-Quyidagi antidoping haqidagi postni tahlil qilib, uni yanada qiziqarli, tushunarli va dalillarga boy qilib qayta yoz. 
+Quyidagi antidoping haqidagi postni tahlil qilib, uni yanada faktlarga, ilmiy dalillarga va chuqur ma'lumotlarga boy qilib qayta yoz. 
 Xatolarni tuzat, takrorlarni olib tash. Matnni podkast qilib o'qishga moslashtir. 
-Juda uzun bo'lib ketmasin (3-4 daqiqalik nutq). Matn o'zbek tilida bo'lsin.
+Juda qisqa bo'lmasin, yetarlicha boy va ilmiy jihatdan kuchli tahlil bo'lsin (ammo o'ta uzun ham bo'lib ketmasin, 3-4 daqiqalik nutq).
+"DIQQAT PROFESSIONAL ANTIDOPING TAHLILI" kabi eski qoliplarni va "Xulosa: Qoidani bilmaslik..." degan yozuvlarni umuman ishlatma. To'g'ridan to'g'ri jiddiy matnga o't.
+Matn sof o'zbek tilida bo'lsin.
 
 Qoralama matn:
 {first_draft}

@@ -37,8 +37,7 @@ def generate_post_script():
         ]
         selected_topic = random.choice(topics)
     
-    full_text = f"🚨 DIQQAT: PROFESSIONAL ANTIDOPING TAHLILI 🚨\n\n{selected_topic}\n\nXulosa: Qoidani bilmaslik — javobgarlikdan ozod qilmaydi! O'z karyerangiz va sog'lig'ingizni xavf ostiga qo'ymang.\n\n#TozaSport #UzNADA #WADA #AntiDoping"
-    return full_text
+    return selected_topic
 
 if __name__ == "__main__":
     post = generate_post_script()
