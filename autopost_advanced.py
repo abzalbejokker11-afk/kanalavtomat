@@ -1,12 +1,42 @@
+import os
+import sys
+import asyncio
+from aiogram import Bot, Dispatcher
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from bot_handlers import async_video_job
 
-def setup_scheduler(bot):
+import keep_alive
+from bot_handlers import router, set_bot_commands, async_post_job
+
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
+
+async def main():
+    if not TELEGRAM_TOKEN:
+        print("❌ Iltimos, muhit o'zgaruvchilariga TELEGRAM_TOKEN ni kiriting!")
+        sys.exit(1)
+        
+    # Veb serverni ishga tushirish (Render uxlamasligi uchun)
+    keep_alive.keep_alive()
+
+    # Aiogram bot va dispatcher
+    bot = Bot(token=TELEGRAM_TOKEN)
+    dp = Dispatcher()
+    
+    # Router va Komandalarni o'rnatish
+    dp.include_router(router)
+    await set_bot_commands(bot)
+    
+    # APScheduler orqali vaqtga biriktirilgan vazifalarni o'rnatish
     scheduler = AsyncIOScheduler()
     
-    # Har kuni soat 07:00 dan 22:00 gacha HAR SOATDA post (video/ovozli) tashlanadi!
-    # minute=0 degani soat boshi (07:00, 08:00, 09:00 ...)
-    scheduler.add_job(async_video_job, 'cron', hour='7-22', minute=0, args=[bot])
+    # Har soatda (24 soat tinimsiz) post yuborish
+    scheduler.add_job(async_post_job, 'cron', minute=0, args=[bot])
     
     scheduler.start()
-    return scheduler
+    
+    print("✅ Aiogram Bot va Jadval ishga tushdi. Bot xabarlarni kutmoqda...")
+    
+    # Botni ishga tushirish (Polling)
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())

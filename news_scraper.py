@@ -1,72 +1,59 @@
+import os
 import random
+import urllib.parse
+import xml.etree.ElementTree as ET
+import html
+import requests
 
-def generate_video_script():
-    # 35 ta juda kuchli, professional va keng qamrovli doping mavzulari!
+def generate_post_script():
+    # 20 ta eng zamonaviy, professor-darajasidagi savol-javob mavzulari
     topics = [
-        "Qon dopingi (Blood doping) qanday ishlaydi? Qizil qon tanachalari (eritrotsitlar) sonini sun'iy ravishda ko'paytirish orqali sportchi mushaklariga kislorod yetkazib berishni tezlashtiradi. Ammo bu qonning quyuqlashishiga, yurak xurujiga va to'satdan o'limga olib kelishi mumkin. WADA buni bio-pasport orqali qattiq nazorat qiladi.",
+        "S: Sportchingiz kutilmaganda kasal bo'lib qoldi va davolanish uchun taqiqlangan dori kerak. Nima qilasiz?\n\nJ: Zudlik bilan shifokorga murojaat qilinadi va WADA tizimi orqali 'Terapevtik Istisno' (TUE) hujjati to'ldiriladi. Ariza ADAMS tizimiga yuklanib, ruxsat kelmaguncha dori qabul qilinmaydi. Muddat va hujjatlarning aniqligi hal qiluvchi rol o'ynaydi.",
         
-        "Rossiya Olimpiya qo'mitasining tizimli doping mojarosi qanday yuz berdi? 2014-yilgi Sochi Olimpiadasida davlat tomonidan qo'llab-quvvatlangan doping dasturi fosh bo'ldi. Doping-nazorat xonasi devoridagi maxfiy teshik orqali musbat qon namunalari toza namunalarga almashtirilgan. Natijada yuzlab sportchilar diskvalifikatsiya qilindi.",
+        "S: Doping-ofitser (DCO) musobaqadan tashqari vaqtda, tungi soat 23:00 da test olish uchun keldi. Sportchi charchaganini aytib, rad eta oladimi?\n\nJ: Mutlaqo yo'q! Qoidalarga ko'ra, testni rad etish yoki qochish – to'g'ridan-to'g'ri doping qabul qilgan deb baholanadi va sportchi 4 yilga diskvalifikatsiya qilinadi. Jarayon darhol bajarilishi shart.",
         
-        "Lance Armstrong qanday qilib yillar davomida WADA ni aldab kelgan? Tour de France musobaqasining 7 karra g'olibi EPO, testosteron va qon quyish kabi eng murakkab doping usullaridan foydalangan. Uning jamoasi maxsus shifokorlar bilan tillabiriktirib, testlardan muvaffaqiyatli o'tishni o'rgangan. Yakunda uning barcha unvonlari tortib olindi.",
+        "S: Oziq-ovqat qo'shimchasi (SportPit) tarkibida yashirin taqiqlangan modda bo'lsa va sportchi uni bilmay ichgan bo'lsa, kim aybdor?\n\nJ: Qat'iy javobgarlik (Strict Liability) prinsipi! Sportchi o'z vujudiga tushgan har qanday modda uchun shaxsan javobgardir. Ishlab chiqaruvchi aybdorligini isbotlash jazoni yengillashtirishi mumkin, lekin jazodan to'liq qutqarmaydi.",
         
-        "Meldoniy (Mildronat) mojarosi. Asosan Sharqiy Yevropada yurak kasalliklarini davolash uchun dori sifatida ishlatiladigan bu modda sportchilarda chidamlilikni oshirgani uchun 2016-yilda WADA tomonidan taqiqlandi. Mariya Sharapova kabi yuzlab mashhur sportchilar ehtiyotsizlik sababli sportdan chetlatildi.",
+        "S: Qon dopingi (Blood Doping) nima va WADA uni qanday fosh qiladi?\n\nJ: Bu sportchining o'z qonini oldindan olib qo'yib, musobaqa oldidan qayta quyish orqali kislorodni ko'paytirish usuli. Buni fosh qilish uchun WADA 'Biologik Pasport' (ABP) tizimidan foydalanadi. Qondagi retikulotsitlar keskin o'zgarishi darhol firibgarlikni oshkor qiladi.",
         
-        "Yengil atletikada anabolik steroidlar qanday halokatli ta'sir qiladi? Anabolik steroidlar mushak massasini va kuchni tez sur'atlarda oshiradi, ammo jigar yemirilishi, yurak-qon tomir kasalliklari va gormonal buzilishlarga olib keladi. Bunga Ben Jonsonning 1988-yildagi mojarosi yaqqol misol bo'la oladi.",
+        "S: Sportchi jarohat oldi va shifoxonaga tushdi. Mahalliy shifokorlar unga narkotik og'riq qoldiruvchi dori yuborishdi. Qanday yo'l tutiladi?\n\nJ: Shoshilinch tibbiy yordam holatida dori darhol qabul qilinadi, lekin hayot xavfdan o'tgan zahoti 'Ortga qaytuvchi Terapevtik Istisno' (Retroactive TUE) uchun ariza topshirilishi shart. Barcha kasallik tarixi hujjatlashtirilishi zarur.",
         
-        "Caster Semenya ishi: Testosteron va ayol sportchilardagi gender mojarolari. Tabiatan yuqori testosteron darajasiga ega bo'lgan ayol sportchilar (giperandrogenizm) boshqalarga nisbatan adolatsiz ustunlikka ega hisoblanadi. World Athletics ulardan sun'iy ravishda gormonni pasaytiruvchi dorilar ichishni talab qilib, katta inson huquqlari mojarosiga sabab bo'ldi.",
+        "S: ADAMS tizimi nima va nima uchun sportchi har kuni o'z turar joyini ko'rsatishi majburiy?\n\nJ: ADAMS – WADA ning xalqaro axborot bazasi. Doping nazorati kutilmagan bo'lishi shart. Agar sportchi 12 oy ichida 3 marta ADAMS orqali ko'rsatilgan joyidan topilmasa, u to'g'ridan-to'g'ri 1 yildan 2 yilgacha diskvalifikatsiya qilinadi.",
         
-        "Og'ir atletikada doping oqibatlari. Nima uchun Butunjahon Og'ir Atletika Federatsiyasi (IWF) katta inqirozga yuz tutdi? Rahbariyatdagi korrupsiya va yashirilgan musbat doping-testlar tufayli bu sport turi Xalqaro Olimpiya Qo'mitasi tomonidan Olimpiada dasturidan chiqarib yuborilish xavfi ostida qoldi.",
+        "S: Steroidlar mushaklarni tez o'stiradi, ammo uning yashirin tibbiy halokati nimalarda namoyon bo'ladi?\n\nJ: Tashqi ko'rinish aldamchi! Anabolik steroidlar qonni quyuqlashtirib, tromb hosil qiladi. Natijada yosh sportchilarda ham miyaga qon quyilishi (insult), jigar saratoni va to'satdan yurak to'xtashi kuzatiladi. Bu tibbiy fakt.",
         
-        "O'zbekistonda UzNADA (Milliy Antidoping Agentligi) faoliyati. O'zbekiston sportchilarini dopingdan himoya qilish uchun muntazam ravishda musobaqadan tashqari va musobaqa davrida qat'iy doping nazoratlari o'tkazilmoqda. Sportchilarga ruxsatsiz dorilarni qabul qilishning jinoiy va sport karerasini yo'q qiluvchi oqibatlari doimiy tushuntiriladi.",
+        "S: Trimetazidin yoki Meldoniy kabi yurak dorilari nega sportda qat'iy taqiqlangan?\n\nJ: Bu moddalar yurak mushaklariga kislorod yetishmovchiligi (gipoksiya) sharoitida ishlash imkonini beradi. Sportda bu chidamlilikni sun'iy oshirish hisoblanadi. Uning mavjudligi hatto nanogramm miqdorida bo'lsa ham qoidabuzarlik sanaladi.",
         
-        "Bio-pasport (Athlete Biological Passport) nima va u qanday ishlaydi? WADA sportchining qon va siydik namunalarini yillar davomida to'plab, uning biologik profilini yaratadi. Garchi doping moddasi aniqlanmasa ham, agar qondagi ko'rsatkichlar sun'iy ravishda o'zgarganligi (sakrashlar) sezilsa, sportchi to'g'ridan-to'g'ri dopingda ayblanib, jazolanadi.",
+        "S: Mashg'ulotlar bazasida sportchi qoniga 100 ml dan ortiq IV (venadan tomchi) ukol oldi. Bu dopingmi?\n\nJ: Ha! Agar bu shifoxona sharoitida qonuniy tibbiy operatsiya bo'lmasa, har qanday 100 ml dan ortiq tomchi ukol (kapelnitsa) WADA tomonidan taqiqlangan manipulyatsiya hisoblanadi. Bu qonni yuvishga urinish deb baholanadi.",
         
-        "Mashhur futbolchilardagi doping janjallari. Diego Maradona 1994-yilgi Jahon chempionatida efedrin qabul qilib ushlangan bo'lsa, yaqinda Pol Pogba testosteron qabul qilgani uchun 4 yilga diskvalifikatsiya qilindi. Futbol dunyosi ham doping xavfidan to'liq himoyalanmagan.",
+        "S: Giyohvand moddalar (Kokain, Nasha) qabul qilish doping qoidabuzarligiga kiradimi?\n\nJ: Albatta. Agar ular musobaqa davrida aniqlansa, stimulyator yoki qonunbuzarlik sifatida sanksiya qo'llaniladi. 2021 yildan boshlab 'Substances of Abuse' (Suiiste'mol qilinuvchi moddalar) qoidasi bo'yicha reabilitatsiya va jazo muddatlari belgilanadi.",
         
-        "UFC va aralash jang san'atlarida USADA ning qattiqqo'l doping tekshiruvlari. Jon Jons, Teylor Dillashou va boshqa mashhur chempionlar steroid yoki taqiqlangan moddalar sababli o'z kamarlaridan mahrum bo'lishdi. UFC endilikda o'z mustaqil antidoping dasturini ishlab chiqib, qoidalarni yanada kuchaytirdi.",
+        "S: Sportchining ovqatiga raqiblari qasddan doping moddasi qo'shib qo'ysa nima bo'ladi?\n\nJ: Bu 'Sabotaj' (Sabotage) deyiladi. Sportchi bu holatni politsiya va kuzatuv kameralari orqali yuridik jihatdan isbotlab bera olsa, u to'liq oqlanishi mumkin. Ammo isbot yuki (Burden of Proof) 100% sportchining o'zida bo'ladi.",
         
-        "EPO (Eritropoetin) moddasining qora tarixi. Buyraklar tomonidan ishlab chiqariladigan bu gormon sun'iy ravishda yuborilganda chidamlilikni mo'jizaviy tarzda oshiradi. Biroq 90-yillarda EPO qabul qilgan yigirmaga yaqin yosh velosportchilar uxlab yotgan joyida yurak to'xtashi sababli vafot etishgan.",
+        "S: Genetik Doping (Gene Doping) degan yangi tahdid qanday ishlaydi?\n\nJ: Bu kelajakning eng qora texnologiyasi. Sportchi DNK siga maxsus vektorlar yuboriladi, natijada inson tanasining o'zi sintetik tarzda gormon (masalan, EPO) ishlab chiqara boshlaydi. WADA hozirda bu mutatsiyalarni aniqlovchi innovatsion mRNK testlarini joriy etmoqda.",
         
-        "Paralimpiya o'yinlarida doping mojarolari. Imkoniyati cheklangan sportchilar nega doping qabul qiladi? Ba'zilar mushak spazmlarini yo'qotish, og'riqni qoldirish yoki qon bosimini sun'iy ko'tarish (boosting) orqali adolatsiz ustunlikka erishishga urinishadi, bu esa qat'iy nazorat qilinadi.",
+        "S: Musbat doping natijasi chiqdi (A proba). Sportchining keyingi huquqiy qadami qanday bo'lishi kerak?\n\nJ: Vahimaga tushmaslik kerak. Sportchi o'z hisobidan 7 kun ichida 'B proba' ni ochishni talab qilish huquqiga ega. 'B proba' ochilish jarayonida sportchi yoki uning yuridik vakili shaxsan ishtirok etishi va laboratoriya xatolarini nazorat qilishi mumkin.",
         
-        "Gen dopingi (Genetik modifikatsiya) – kelajak xavfi! Olimlar sportchining DNK sini o'zgartirish orqali chidamlilik genlarini (masalan, miostatin blokatorlari) faollashtirishi mumkin. WADA hozirdanoq genetik dopingni aniqlovchi innovatsion test usullari ustida qizg'in ish olib bormoqda.",
+        "S: Yosh bolalar va o'smirlar sportida doping aralashuvi kuzatilsa kim javobgar?\n\nJ: Agar voyaga yetmagan sportchidan doping topilsa, WADA asosiy e'tiborni murabbiy va shifokorga qaratadi. Ularga nisbatan 'Personnel Involvement' moddasi orqali umrbod sportdan chetlatish va hatto jinoiy javobgarlik choralari qo'llaniladi.",
         
-        "Sport oziq-ovqatlari (SportPit) va protestinlardagi yashirin xavf! Ko'plab protein va BCAA qutilari ichida yashirin holda steroidlar yoki taqiqlangan stimulyatorlar mavjud. Sportchilar ongsiz ravishda ifloslangan qo'shimchalarni iste'mol qilib, 4 yillik diskvalifikatsiyaga tushib qolish holatlari keskin ko'paydi.",
+        "S: Diuretiklar (siydik haydovchi dorilar) nima uchun doping hisoblanadi, axir ular kuch bermaydi-ku?\n\nJ: Diuretiklar ikki xil firibgarlik uchun ishlatiladi: 1) Kurash va boksda vaznni sun'iy tashlash; 2) 'Masking agent' – ya'ni organizmdagi anabolik steroidlarni siydik orqali tez yuvib, izini yo'qotish uchun. Shuning uchun ham ular qat'iyan man qilingan.",
         
-        "Doping faqat g'alaba emas, balki to'satdan o'limga ham olib keladi. Steroid va gormonlarning me'yordan ortiq dozasi jigar saratoni, insult, yurak mushagining kengayishi va buyrak yetishmovchiligi kabi og'ir kasalliklarni chaqiradi. Sog'liq va hayot – medallardan qimmatroqdir!",
+        "S: Maxsus balandlik kameralari (Hypoxic tents) va kislorod niqoblari dopingmi?\n\nJ: Yo'q. Atmosfera bosimini pasaytiruvchi uskunalar (kislorod tanqisligi yaratuvchi chodirlar) hozirgi kunda qonuniy hisoblanadi. Chunki ular organizmga hech qanday kimyoviy modda kiritmaydi, balki tananing o'z moslashuvchanligini tabiiy ishga tushiradi.",
         
-        "Doping tekshiruvidan bo'yin tovlash qoidalari. Agar sportchi doping ofitseri kelganida undan qochsa, test topshirishni rad etsa yoki qon namunasini buzishga urinsa, u to'g'ridan-to'g'ri doping qabul qilgan deb topiladi va 4 yilga sportdan butunlay chetlatiladi.",
+        "S: Astma bilan kasallangan professional chang'ichi qanday qilib musobaqalarda qatnasha oladi?\n\nJ: Salbutamol kabi astma dorilari muayyan dozagacha (masalan, 12 soat ichida 800 mikrogram) ruxsat etilgan. Agar dozadan oshsa yoki og'irroq dori kerak bo'lsa, zudlik bilan rasmiy tibbiy xulosa (TUE) taqdim etilishi shart. Aks holda bu doping.",
         
-        "Terapevtik istisnolar (TUE - Therapeutic Use Exemptions). Agar sportchi haqiqatan ham kasal bo'lsa va davolanish uchun taqiqlangan dori kerak bo'lsa, WADA qat'iy tekshiruvdan so'ng ruxsat berishi mumkin. Ammo ba'zi sportchilar qalbaki astma kasalligi (Norvegiya chang'ichilari) yordamida buni suiiste'mol qilgani fosh etilgan.",
+        "S: Musobaqadan so'ng doping ofitseri kelganda, sportchi dush qabul qilib kelishini aytsa bo'ladimi?\n\nJ: Qat'iyan taqiqlanadi! DCO sportchini ogohlantirgan soniyadan boshlab, sportchi ofitserning ko'z o'ngidan bir soniyaga ham yo'qolmasligi shart. Dush qabul qilish, ko'p miqdorda suv ichish yoki peshob qilish ofitser kuzatuvida amalga oshiriladi.",
         
-        "Muvaffaqiyatsiz 'Klenbuterol' oqlanishlari. Xitoy va Meksikadagi go'sht mahsulotlarida hayvonlarni semirtirish uchun ishlatiladigan klenbuterol moddasi uchraydi. Ba'zi sportchilar doping testdan yiqilganda 'ifloslangan go'sht yegan edim' deb bahona qilishadi, ammo WADA buni har doim ham qabul qilavermaydi.",
+        "S: Klenbuterol mojarosi nima va u ba'zi mamlakatlarda qanday xavf tug'diradi?\n\nJ: Xitoy, Meksika kabi ba'zi davlatlarda klenbuterol mol go'shtini semirtirish uchun ishlatiladi. Sportchilar ifloslangan steyk yeb qo'yib, doping testdan yiqilishgan. WADA endilikda modda miqdori juda past bo'lsa, go'sht faktini inobatga olish qoidasini kiritgan.",
         
-        "O'zbekistonda yosh sportchilarni antidoping ta'limiga jalb etish. Doping asosan bilimsizlik va ustoz-murabbiylarning bosimi tufayli sodir bo'ladi. Hozirda UzNADA yoshlarni erta yoshdanoq 'Toza sport' g'oyasi ostida o'qitib, kelajakda musobaqalarga toza vijdon bilan chiqishiga zamin yaratmoqda.",
-        
-        "Trenbolon va hayvonlar uchun dori-darmonlar. Qora bozorda tarqalgan eng kuchli va xavfli steroidlardan biri – asosan mol-qo'ylarni semirtirish uchun mo'ljallangan. Buni qabul qilgan sportchilarda agressiya, ruhiy tushkunlik va ichki a'zolarning parchalanishi kuzatiladi.",
-        
-        "Qon quyish (Blood transfusion) qanday amalga oshiriladi? Sportchi baland tog'li hududda mashq qilgach, kislorodga boy qonini olib muzlatib qo'yadi. Musobaqa oldidan esa o'z qonini qayta vujudiga quyadi. Bu WADA ni aldashning qadimiy, lekin eng ehtiyotkor texnikalaridan biri bo'lib kelgan.",
-        
-        "Xitoy suzuvchilari va Trimetazidin mojarosi. 2021-yilda 23 nafar xitoylik suzuvchida musbat test chiqishiga qaramay, mehmonxonadagi 'oshxona ifloslanishi' vajidan ular oqlandi. Bu voqea WADA va USADA (AQSh antidoping) o'rtasida global siyosiy va huquqiy jangga sabab bo'ldi.",
-        
-        "Taqiqlangan diuretiklar (siydik haydovchi dorilar). Ko'plab sportchilar diuretiklardan nafaqat vazn haydash (boks, dzyudo), balki tanadagi doping moddasini siydik orqali tezroq yuvib chiqarib tashlash (masking agent) maqsadida foydalanadi. Ularning aniqlanishi darhol diskvalifikatsiyaga sabab bo'ladi.",
-        
-        "WADA Qoidalari qanday yangilanadi? Har yili 1-yanvarda Butunjahon Antidoping Agentligi taqiqlangan dorilar ro'yxatini e'lon qiladi. Sportchilar va jamoa shifokorlari har qanday aptekadan dori sotib olishdan oldin GlobalDRO bazasidan tekshirib ko'rishlari shart.",
-        
-        "Kamila Valiyeva mojarosi. 15 yoshli figurali uchish yulduzida topilgan Trimetazidin moddasi Butunjahon Olimpiadasini larzaga keltirdi. 'Buvimning stakanidan suv ichgandim' degan oqlanish ish bermadi, unga 4 yillik qamoq (sportdan) jazosi tayinlandi.",
-        
-        "Sportda Stimulyatorlarning qo'llanilishi (Kokain, Efedrin, Amfetamin). Stimulyatorlar asab tizimini qo'zg'atib, reaksiyani tezlashtiradi va charchoqni his qildirmaydi. Biroq musobaqa paytidagi haddan tashqari zo'riqish insult, infarkt yoki aqldan ozishga olib kelishi ilmiy tasdiqlangan.",
-        
-        "Iqlimga moslashish xonalari (Hypoxic chambers) va qon dopingiga muqobil qonuniy usullar. Sportchilar qonini qonuniy yo'l bilan boyitish uchun past kislorodli maxsus xonalarda uxlaydilar. Bu qonuniy texnologiya doping vositalarisiz tabiiy chidamlilikni oshirishning zamonaviy yechimi hisoblanadi.",
-        
-        "Siyosat va Doping: Davlat rahbarlari nega dopingni qoplab kelgan? Ayrim davlatlar uchun sportchilarning medallari geosiyosiy qudrat belgisi hisoblanadi. Shuning uchun ham Maxsus Xizmatlar aralashuvi orqali qon namunalarini almashtirish tarixda chinakam siyosiy mojarolarni yuzaga keltirgan.",
-        
-        "Antidoping ofitserlarining qat'iy vakolatlari. Doping xodimlari sportchini xohlagan vaqtda: tungi soat 3 da, uyquda, dam olish kunlari yoki hatto to'y marosimida bo'lsa ham kelib tekshirish huquqiga ega. Sportchi ADAMS tizimiga har kunlik turar joyini kiritib borishi majburiydir."
+        "S: Glukokortikoidlar (yallig'lanishga qarshi ukollar) bo'yicha so'nggi 2022-yilgi o'zgarishlar qanday?\n\nJ: Ilgari barcha ukollar ruxsat etilgan edi. Hozirgi kunga kelib, bo'g'im ichiga (intra-articular) yuboriladigan barcha glukokortikoidlar musobaqa davrida qat'iyan taqiqlandi! Davolanish muddati (Washout period) ga qat'iy rioya qilinishi shart."
     ]
     
     selected_topic = random.choice(topics)
     
-    # Madina huddi diktatordek o'qishi uchun qat'iy, sovuqqon va hukmron ohangdagi buyruq matni.
-    full_text = f"🚨 DIQQAT! SPORTDAGI JIDDIY XAVF VA QOIDABUZARLIK! 🚨\n\n{selected_topic}\n\nDoping — bu shunchaki qoidabuzarlik emas, bu sizning sportdagi kelajagingizni, sog'lig'ingizni va insoniylik qadr-qimmatingizni butunlay yakson qiluvchi xiyonatdir! Hech qanday soxta g'alaba umrbod sharmandalikka arzimasligini unutmang! Halol sport — chinakam chempionlarning yagona yo'lidir!\n\n#TozaSport #UzNADA #WADA #DopingControl"
-
+    full_text = f"🚨 DIQQAT: PROFESSIONAL ANTIDOPING TAHLILI 🚨\n\n{selected_topic}\n\nXulosa: Qoidani bilmaslik — javobgarlikdan ozod qilmaydi! O'z karyerangiz va sog'lig'ingizni xavf ostiga qo'ymang.\n\n#TozaSport #UzNADA #WADA #AntiDoping"
     return full_text
+
+if __name__ == "__main__":
+    post = generate_post_script()
+    print("YANGILIK POSTI:\n", post)
