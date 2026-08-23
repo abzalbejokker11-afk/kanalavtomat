@@ -43,7 +43,10 @@ async def async_post_job(bot: Bot = None):
                     await bot.send_message(chat_id=CHANNEL_ID, text=chunk)
             
             # Tozalash
-            os.remove(audio_file)
+            try:
+                os.remove(audio_file)
+            except Exception:
+                pass
             return True, "✅ Muvaffaqiyatli"
         return False, f"Ovoz yaratilmadi. Xato: {v_err}"
     except Exception as e:
