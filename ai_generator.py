@@ -86,8 +86,8 @@ def generate_super_post():
     past_context = "\n".join([f"- {t}" for t in past_topics]) if past_topics else "Hali hech qanday post yozilmagan."
     
     prompt = f"""
-Siz dunyodagi eng yaxshi ilmiy jurnalist va WADA qoidalari bo'yicha eksportsiz.
-Vazifangiz – quyidagi 3 xil manbadan olingan ma'lumotlar asosida HALI HECH KIM YOZMAGAN, ammo mantiqan to'g'ri bo'lgan yangi g'oyani taklif qilish va uni asoslovchi post yozish.
+Siz xalqaro antidoping qoidalari (WADA) bo'yicha eng nufuzli huquqshunos, mutaxassis va ilmiy jurnalistsiz.
+Vazifangiz – quyidagi 3 xil manbadan olingan ma'lumotlar asosida sportchilar uchun o'ta dolzarb, mutlaqo qonuniy va xatosiz bo'lgan mukammal post yozish. Barcha ma'lumotlar rasmiy WADA kodeksiga va huquqiy me'yorlarga yuz foiz mos kelishi shart.
 
 DIQQAT! Quyidagi mavzular oldin yozilgan, ularni mutlaqo TAKRORLAMANG:
 {past_context}
@@ -98,19 +98,18 @@ Manbalar:
 3. Tarixiy/Ilmiy kontekst (ArXiv): {history_arxiv}
 
 Post O'ZBEK TILIDA quyidagi tuzilishda bo'lsin:
-- Sarlavha (qiziqarli, clickbait emas)
-- Kirish (muammo yoki savol)
-- Asosiy tahlil (3 ta band, har biri dalillar bilan)
-- Yangi taklif (oldinga siljish)
-- Xulosa va ochiq savollar
+- Sarlavha (Jiddiy va e'tiborni tortuvchi)
+- Kirish (Huquqiy muammo yoki dolzarb savol)
+- Asosiy tahlil (3 ta band, har biri rasmiy qoidalar va ilmiy dalillar bilan tasdiqlangan)
+- Xulosa va huquqiy ogohlantirish (Qat'iy javobgarlik qoidasi eslatilsin)
 
 MUHIM QOIDALAR:
 - Matn kamida 800 so'zdan iborat bo'lsin
-- Chuqur, boy va ilmiy jihatdan kuchli tahlil yoz
+- Chuqur, boy va yuridik/ilmiy jihatdan benuqson tahlil yoz
 - Savol-Javob formatida emas, to'g'ridan-to'g'ri jiddiy tahlil matni bo'lsin
 - Hech qanday belgi ishlatma: yulduzcha (*), reshyotka (#), tag (__), emoji
 - Raqamlarni so'z bilan yoz (masalan: 4 emas, to'rt)
-- Matn podkast uchun ovozga aylantiriladi, shuning uchun ravon va tabiiy gaplardan iborat bo'lsin
+- Matn podkast uchun ovozga aylantiriladi, shuning uchun ravon va rasmiy tilda bo'lsin
 """
 
     print("2. Qoralama yozilmoqda...")
