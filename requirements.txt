@@ -3,13 +3,10 @@ beautifulsoup4
 APScheduler
 aiogram
 flask
-google-generativeai
 edge-tts
-imageio-ffmpeg
 Pillow
 python-dotenv
 urllib3
-duckduckgo-search
 gTTS==2.5.4
 arxiv
 newsapi-python

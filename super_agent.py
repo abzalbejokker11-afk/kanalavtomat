@@ -1,13 +1,9 @@
 import requests
 import json
 import os
-import arxiv
-from newsapi import NewsApiClient
-import google.generativeai as genai
 
 # Konfiguratsiya
 NEWS_API_KEY = "a32f89385b7d42b08f95f1110c5a88ee"
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 def get_reddit_discussions(query="doping WADA", limit=3):
     """Reddit'dan tekin (API kalitsiz) ma'lumot olish"""
@@ -32,6 +28,7 @@ def get_reddit_discussions(query="doping WADA", limit=3):
 def get_arxiv_papers(query="all:\"doping in sports\" OR all:\"WADA\"", max_results=2):
     """ArXiv'dan ilmiy va tarixiy kontekst olish"""
     try:
+        import arxiv
         client = arxiv.Client()
         search = arxiv.Search(
             query=query,
@@ -51,6 +48,7 @@ def get_arxiv_papers(query="all:\"doping in sports\" OR all:\"WADA\"", max_resul
 def get_news(query="WADA OR doping", language='en'):
     """NewsAPI orqali yangiliklar olish"""
     try:
+        from newsapi import NewsApiClient
         newsapi = NewsApiClient(api_key=NEWS_API_KEY)
         top_headlines = newsapi.get_everything(q=query, language=language, sort_by='publishedAt', page_size=3)
         

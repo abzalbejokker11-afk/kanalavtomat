@@ -1,19 +1,21 @@
 import os
 import asyncio
 import edge_tts
-import requests
 
 def create_audio(text):
     audio_path = "temp_audio.mp3"
     
     try:
-        clean_text = text.replace("#", "").replace("*", "")
+        clean_text = text.replace("#", "").replace("*", "").replace("❓", "").replace("✅", "").replace("🎙", "").replace("⚠️", "")
         print("Professor/Diktator ovozi (edge-tts) orqali yasalmoqda...")
         
         try:
-            # rate=+5% (salf pastroq tezlik), pitch=-5Hz (jiddiy professordek ohang)
+            # Yangi event loop yaratish (ichki loop bilan conflict bo'lmasligi uchun)
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
             communicate = edge_tts.Communicate(clean_text, "uz-UZ-MadinaNeural", rate="+5%", pitch="-5Hz")
-            asyncio.run(communicate.save(audio_path))
+            loop.run_until_complete(communicate.save(audio_path))
+            loop.close()
         except Exception as tts_err:
             print(f"Edge-TTS ishlashda xatolik qildi: {tts_err}. gTTS zaxirasiga o'tilmoqda...")
             from gtts import gTTS
