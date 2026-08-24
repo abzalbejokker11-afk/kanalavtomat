@@ -15,18 +15,31 @@ async def set_bot_commands(bot: Bot):
     ]
     await bot.set_my_commands(commands)
 
+from urllib.parse import quote
+from aiogram.types import URLInputFile
+
 async def async_post_job(bot: Bot = None):
     try:
         loop = asyncio.get_event_loop()
-        text = await loop.run_in_executor(None, news_scraper.generate_post_script)
+        text, img_prompt = await loop.run_in_executor(None, news_scraper.generate_post_script)
         
         if not text or len(text.strip()) < 50:
             print("Matn juda qisqa yoki bo'sh keldi!")
             return False, "Matn generatsiya qilinmadi"
+            
+        # Rasm URL shakllantirish (Pollinations AI)
+        image_url = f"https://image.pollinations.ai/prompt/{quote(img_prompt)}?width=1024&height=1024&nologo=true"
         
         audio_file, v_err = await loop.run_in_executor(None, video_maker.create_audio, text)
         
         if audio_file:
+            # 1. Rasmni yuborish
+            try:
+                await bot.send_photo(chat_id=CHANNEL_ID, photo=URLInputFile(image_url))
+            except Exception as pe:
+                print(f"Rasm yuborishda xato: {pe}")
+                
+            # 2. Ovozni yuborish
             voice_input = FSInputFile(audio_file)
             
             # Telegram caption limiti 1024 belgi. Agar matn uzun bo'lsa:

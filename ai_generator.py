@@ -132,6 +132,7 @@ MUHIM QOIDALAR:
 
 Qoralama matn:
 {first_draft}
+- Matnning eng oxirida alohida qatorda: [IMAGE_PROMPT: (shu mavzuga mos, cinematic, dramatic lighting stilida inglizcha rasm chizish uchun 10-15 ta so'zdan iborat rasm prompti yozilsin)]
 """
     print("3. O'z-o'zini tahrirlamoqda (Self-refinement)...")
     final_post = ask_ai(refine_prompt)
@@ -139,8 +140,17 @@ Qoralama matn:
     if not final_post:
         final_post = first_draft
     
+    # Rasmni chizish uchun promptni ajratib olish
+    import re
+    image_prompt = "A dramatic anti-doping motivational poster, cinematic lighting, highly detailed, professional sport"
+    match = re.search(r'\[IMAGE_PROMPT:\s*(.*?)\]', final_post, re.IGNORECASE)
+    if match:
+        image_prompt = match.group(1).strip()
+        final_post = re.sub(r'\[IMAGE_PROMPT:\s*.*?\]', '', final_post, flags=re.IGNORECASE)
+
     # Belgilarni tozalash (ovoz uchun)
     final_post = final_post.replace("*", "").replace("#", "").replace("_", "").replace("`", "")
+    final_post = final_post.strip()
     
     # Yangi sarlavhani xotiraga saqlab qolish
     first_line = final_post.split('\n')[0].strip()
@@ -148,9 +158,11 @@ Qoralama matn:
         past_topics.append(first_line)
         save_history(past_topics)
     
-    return final_post
+    return final_post, image_prompt
 
 if __name__ == "__main__":
-    post = generate_super_post()
+    post, img_p = generate_super_post()
     print("=== FINAL POST ===")
     print(post)
+    print("=== IMAGE PROMPT ===")
+    print(img_p)
