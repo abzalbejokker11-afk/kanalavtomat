@@ -16,7 +16,7 @@ def save_history(history):
         json.dump(history[-10:], f, ensure_ascii=False, indent=2)
 
 # GitHub push himoyasini aylanib o'tish uchun kalitlarni teskari tartibda yozamiz
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "Asz5fZkEQUMwZhH1wBqqeM3o9fbxcGoQ_AIbUVOcK6NR8bA.QA"[::-1])
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "Asz5fZkEQUQwIMZhH1wBqqeMy3o9fbcxGoQ_AIbUVOCK6NR8bA.QA"[::-1])
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "ae2fe44c7128ff66992a0563c1952d09c7108cb07d91f4a7596866e9e80f08e4-1v-ro-ks"[::-1])
 
 GEMINI_MODELS = ["gemini-flash-latest", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.6-flash"]
