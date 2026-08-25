@@ -5,11 +5,12 @@ print("=" * 60)
 print("POST GENERATSIYA BOSHLANMOQDA...")
 print("=" * 60)
 
-text = news_scraper.generate_post_script()
+text, img = news_scraper.generate_post_script()
 
 print(f"\n{'=' * 60}")
 print(f"POST UZUNLIGI: {len(text)} belgi")
 print(f"SO'ZLAR SONI: {len(text.split())}")
+print(f"RASM PROMPT: {img}")
 print(f"{'=' * 60}")
 print(text)
 print(f"{'=' * 60}")
