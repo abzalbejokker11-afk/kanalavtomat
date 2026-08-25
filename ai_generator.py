@@ -76,6 +76,7 @@ def ask_ai(prompt_text):
 
 def generate_super_post():
     from super_agent import get_reddit_discussions, get_arxiv_papers, get_news
+    import random
     
     print("1. Ma'lumotlar yig'ilmoqda...")
     news = get_news()
@@ -85,9 +86,26 @@ def generate_super_post():
     past_topics = load_history()
     past_context = "\n".join([f"- {t}" for t in past_topics]) if past_topics else "Hali hech qanday post yozilmagan."
     
+    TOPIC_CATEGORIES = [
+        "Sportchilarning ovqatlanishi, vitaminlar va xavfsiz sport oziq-ovqatlari (Supplements) dagi yashirin xatarlar",
+        "Musobaqadan tashqari testlar (Out-of-competition testing) va ADAMS tizimi qoidalari",
+        "Biologik pasport (Athlete Biological Passport - ABP) sirlari va ahamiyati",
+        "Terapevtik istisnolar (TUE) - Kasallik paytida ruxsat etilgan davolanish yo'llari",
+        "Murabbiy va shifokorlarning qat'iy javobgarligi (Strict Liability tamoyili)",
+        "Sportchilarning ruhiyati va qasddan qilingan xatolar (Sanksiyalar va oqibatlar)",
+        "Yakkakurashlarda vazn tashlash daxshati (Diuretiklar va ularning jazosi)",
+        "Doping ofitserlari (DCO) bilan ishlash jarayonidagi sportchining qonuniy huquqlari",
+        "Oddiy apteka dorilari (Teraflyu, Taylolxot) tarkibidagi yashirin doping xavfi"
+    ]
+    current_focus = random.choice(TOPIC_CATEGORIES)
+    
     prompt = f"""
 Siz xalqaro antidoping qoidalari (WADA) bo'yicha eng nufuzli huquqshunos, mutaxassis va ilmiy jurnalistsiz.
-Vazifangiz – quyidagi 3 xil manbadan olingan ma'lumotlar asosida sportchilar uchun o'ta dolzarb, mutlaqo qonuniy va xatosiz bo'lgan mukammal post yozish. Barcha ma'lumotlar rasmiy WADA kodeksiga va huquqiy me'yorlarga yuz foiz mos kelishi shart.
+Vazifangiz – BUGUNGI MAVZU YO'NALISHI asosida sportchilar uchun o'ta dolzarb, mutlaqo qonuniy va xatosiz mukammal post yozish. 
+Barcha ma'lumotlar rasmiy WADA kodeksiga va huquqiy me'yorlarga yuz foiz mos kelishi shart.
+
+BUGUNGI ASOSIY MAVZU YO'NALISHI: "{current_focus}"
+(Aynan shu mavzuni chuqur ochib bering, boshqa mavzularga chalg'imang!)
 
 DIQQAT! Quyidagi mavzular oldin yozilgan, ularni mutlaqo TAKRORLAMANG:
 {past_context}
