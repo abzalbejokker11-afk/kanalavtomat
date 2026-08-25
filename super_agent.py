@@ -9,8 +9,13 @@ def get_reddit_discussions(query="doping WADA", limit=3):
     """Reddit'dan tekin (API kalitsiz) ma'lumot olish"""
     try:
         url = f"https://www.reddit.com/r/sports/search.json?q={query}&restrict_sr=1&limit={limit}"
-        headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Bot'}
+        # Reddit blocks generic User-Agents, using a custom one
+        headers = {'User-agent': 'UzAntiDopingBot/1.0 (by /u/Educational_Bot)'}
         response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            return "Reddit muhokamalari vaqtincha yopiq."
+            
         data = response.json()
         posts = data.get('data', {}).get('children', [])
         
@@ -21,8 +26,7 @@ def get_reddit_discussions(query="doping WADA", limit=3):
             social_context += f"- {title}\n  {selftext[:100]}...\n"
         
         return social_context if social_context else "Reddit'da so'nggi paytlarda faol muhokamalar kuzatilmadi."
-    except Exception as e:
-        print(f"Reddit xatosi: {e}")
+    except Exception:
         return "Muhokamalar mavjud emas."
 
 def get_arxiv_papers(query="all:\"doping in sports\" OR all:\"WADA\"", max_results=2):
