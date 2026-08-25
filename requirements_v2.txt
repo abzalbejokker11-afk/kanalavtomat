@@ -1,0 +1,49 @@
+# 🚀 ULTRA-POWERFUL TELEGRAM BOT V2 - DEPENDENCIES
+# ═════════════════════════════════════════════════════════════
+
+# Core Dependencies
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+
+# Bot & Messaging
+aiogram>=3.0.0
+python-telegram-bot>=20.0
+
+# Task Scheduling
+APScheduler>=3.10.0
+
+# Content & Media
+Pillow>=10.0.0
+edge-tts>=6.1.0
+gTTS==2.5.4
+
+# Data Sources
+arxiv>=1.4.0
+newsapi-python>=0.1.4
+
+# Environment & Config
+python-dotenv>=1.0.0
+urllib3>=2.0.0
+
+# Data Processing
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Async Support
+aiohttp>=3.8.0
+asyncio-contextmanager>=1.0.0
+
+# Logging & Monitoring
+colorlog>=6.7.0
+
+# Optional: AI/ML
+# openai>=1.0.0        # Uncomment if using OpenAI
+# anthropic>=0.7.0     # Uncomment if using Anthropic
+
+# Optional: Database
+# sqlalchemy>=2.0.0    # Uncomment for persistent storage
+
+# Development
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
