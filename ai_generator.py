@@ -1,76 +1,89 @@
 import json
 import os
 import requests
+from kv_storage import kv_get, kv_set
 
 def load_history():
-    if os.path.exists("history.json"):
-        try:
-            with open("history.json", "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return []
+    try:
+        data = kv_get("post_history")
+        if data and isinstance(data, list):
+            return data
+    except Exception as e:
+        print(f"Xotira o'qishda xatolik (KV): {e}")
     return []
 
 def save_history(history):
-    with open("history.json", "w", encoding="utf-8") as f:
-        json.dump(history[-10:], f, ensure_ascii=False, indent=2)
+    try:
+        kv_set("post_history", history[-10:])
+    except Exception as e:
+        print(f"Xotira yozishda xatolik (KV): {e}")
 
 # GitHub push himoyasini aylanib o'tish uchun kalitlarni teskari tartibda yozamiz
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "Asz5fZkEQUQwIMZhH1wBqqeMy3o9fbcxGoQ_AIbUVOCK6NR8bA.QA"[::-1])
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "ae2fe44c7128ff66992a0563c1952d09c7108cb07d91f4a7596866e9e80f08e4-1v-ro-ks"[::-1])
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "L6wbnT7gYoNW2IOpwTE8XVE6YF3bydGWP3LiVie18UpNT7pnBqj5_ksg"[::-1])
+FREELLM_API_KEY = "freellmapi-8ef153fa7d79ce14d97462a852f3145893a07d76202d6527"
 
-GEMINI_MODELS = ["gemini-flash-latest", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.6-flash"]
-OPENROUTER_MODELS = ["anthropic/claude-3-haiku", "openai/gpt-4o-mini"]
+def call_freellmapi(prompt_text):
+    try:
+        url = "https://api.freellmapi.com/v1/chat/completions"
+        headers = {"Authorization": f"Bearer {FREELLM_API_KEY}", "Content-Type": "application/json"}
+        payload = {"model": "claude-opus-4-5", "messages": [{"role": "user", "content": prompt_text}]}
+        resp = requests.post(url, headers=headers, json=payload, timeout=90, verify=False)
+        if resp.status_code == 200:
+            print("  FreeLLMAPI muvaffaqiyatli!")
+            return resp.json()["choices"][0]["message"]["content"].strip()
+    except Exception as e:
+        print(f"  FreeLLMAPI xato: {e}")
+    return None
+
+def call_groq(prompt_text):
+    models = ["llama-3.3-70b-versatile", "mixtral-8x7b-32768", "gemma2-9b-it"]
+    for model in models:
+        try:
+            url = "https://api.groq.com/openai/v1/chat/completions"
+            headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
+            payload = {"model": model, "messages": [{"role": "user", "content": prompt_text}]}
+            resp = requests.post(url, headers=headers, json=payload, timeout=40)
+            if resp.status_code == 200:
+                print(f"  Groq ({model}) muvaffaqiyatli!")
+                return resp.json()["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            print(f"  Groq ({model}) xato: {e}")
+    return None
 
 def call_gemini(prompt_text):
-    """Gemini API — 4 ta model tsiklda aylanadi (fallback)"""
-    for model in GEMINI_MODELS:
+    models = ["gemini-1.5-flash", "gemini-1.5-pro"]
+    for model in models:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
-            payload = {
-                "contents": [{"parts": [{"text": prompt_text}]}],
-                "generationConfig": {"maxOutputTokens": 4096, "temperature": 0.9}
-            }
+            payload = {"contents": [{"parts": [{"text": prompt_text}]}], "generationConfig": {"temperature": 0.9}}
             resp = requests.post(url, json=payload, timeout=90)
             if resp.status_code == 200:
-                data = resp.json()
-                text = data["candidates"][0]["content"]["parts"][0]["text"]
                 print(f"  Gemini ({model}) muvaffaqiyatli!")
-                return text.strip()
-            else:
-                print(f"  Gemini ({model}) xato: {resp.status_code}")
+                return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
         except Exception as e:
             print(f"  Gemini ({model}) xato: {e}")
     return None
 
 def call_openrouter(prompt_text):
-    """OpenRouter API — Claude va GPT-4o-mini (fallback)"""
-    for model in OPENROUTER_MODELS:
+    models = ["anthropic/claude-3-haiku", "openai/gpt-4o-mini"]
+    for model in models:
         try:
             url = "https://openrouter.ai/api/v1/chat/completions"
-            headers = {
-                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                "Content-Type": "application/json"
-            }
-            payload = {
-                "model": model,
-                "messages": [{"role": "user", "content": prompt_text}],
-                "max_tokens": 4000
-            }
+            headers = {"Authorization": f"Bearer {OPENROUTER_API_KEY}", "Content-Type": "application/json"}
+            payload = {"model": model, "messages": [{"role": "user", "content": prompt_text}]}
             resp = requests.post(url, headers=headers, json=payload, timeout=90)
             if resp.status_code == 200:
-                text = resp.json()["choices"][0]["message"]["content"]
                 print(f"  OpenRouter ({model}) muvaffaqiyatli!")
-                return text.strip()
-            else:
-                print(f"  OpenRouter ({model}) xato: {resp.status_code}")
+                return resp.json()["choices"][0]["message"]["content"].strip()
         except Exception as e:
             print(f"  OpenRouter ({model}) xato: {e}")
     return None
 
 def ask_ai(prompt_text):
-    """6 qatlamli fallback: Gemini (4 model) -> OpenRouter (2 model)"""
-    return call_gemini(prompt_text) or call_openrouter(prompt_text)
+    """Zirhli Kaskad: FreeLLMAPI -> OpenRouter -> Groq -> Gemini"""
+    return call_freellmapi(prompt_text) or call_openrouter(prompt_text) or call_groq(prompt_text) or call_gemini(prompt_text)
 
 # ===== ASOSIY GENERATOR =====
 

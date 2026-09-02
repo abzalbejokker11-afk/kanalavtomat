@@ -3,33 +3,28 @@ import json
 import os
 import time
 
+from kv_storage import kv_get, kv_set
+
 # Konfiguratsiya
 NEWS_API_KEY = "a32f89385b7d42b08f95f1110c5a88ee"
-CACHE_FILE = "api_cache.json"
 CACHE_DURATION_HOURS = 4
 
 def get_cached_data(key):
     try:
-        if os.path.exists(CACHE_FILE):
-            with open(CACHE_FILE, 'r', encoding='utf-8') as f:
-                cache = json.load(f)
-            if key in cache:
-                # Tekshiramiz, kesh eskirganmi?
-                if time.time() - cache[key]['time'] < CACHE_DURATION_HOURS * 3600:
-                    return cache[key]['data']
+        cache = kv_get("api_cache")
+        if cache and key in cache:
+            # Tekshiramiz, kesh eskirganmi?
+            if time.time() - cache[key]['time'] < CACHE_DURATION_HOURS * 3600:
+                return cache[key]['data']
     except:
         pass
     return None
 
 def set_cached_data(key, data):
     try:
-        cache = {}
-        if os.path.exists(CACHE_FILE):
-            with open(CACHE_FILE, 'r', encoding='utf-8') as f:
-                cache = json.load(f)
+        cache = kv_get("api_cache") or {}
         cache[key] = {'time': time.time(), 'data': data}
-        with open(CACHE_FILE, 'w', encoding='utf-8') as f:
-            json.dump(cache, f, ensure_ascii=False)
+        kv_set("api_cache", cache)
     except:
         pass
 
