@@ -6,14 +6,16 @@ def create_audio(text):
     audio_path = "temp_audio.mp3"
     
     try:
+        from normalizer import normalize_for_tts
         clean_text = text.replace("#", "").replace("*", "").replace("❓", "").replace("✅", "").replace("🎙", "").replace("⚠️", "")
+        clean_text = normalize_for_tts(clean_text)
         print("Professor/Diktator ovozi (edge-tts) orqali yasalmoqda...")
         
         try:
             # Yangi event loop yaratish (ichki loop bilan conflict bo'lmasligi uchun)
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            communicate = edge_tts.Communicate(clean_text, "uz-UZ-MadinaNeural", rate="+5%", pitch="-5Hz")
+            communicate = edge_tts.Communicate(clean_text, "uz-UZ-MadinaNeural", rate="-10%", pitch="-5Hz")
             loop.run_until_complete(communicate.save(audio_path))
             loop.close()
         except Exception as tts_err:
