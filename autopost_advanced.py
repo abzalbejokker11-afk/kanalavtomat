@@ -28,8 +28,8 @@ async def main():
     # APScheduler orqali vaqtga biriktirilgan vazifalarni o'rnatish
     scheduler = AsyncIOScheduler()
     
-    # Har soatda (24 soat tinimsiz) post yuborish
-    scheduler.add_job(async_post_job, 'cron', minute=0, args=[bot])
+    # Aniq belgilangan soatlarda (09:00, 13:00, 17:00, 21:00) post yuborish
+    scheduler.add_job(async_post_job, 'cron', hour='9,13,17,21', minute=0, args=[bot])
     
     scheduler.start()
     

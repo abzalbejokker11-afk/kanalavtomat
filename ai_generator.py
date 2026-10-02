@@ -139,7 +139,8 @@ Post O'ZBEK TILIDA quyidagi tuzilishda bo'lsin:
 - Xulosa va huquqiy ogohlantirish (Qat'iy javobgarlik qoidasi eslatilsin)
 
 MUHIM QOIDALAR:
-- Matn kamida 800 so'zdan iborat bo'lsin
+- Matn juda keng qamrovli, kamida 800-1000 so'zdan iborat bo'lsin. Har bir qismni chuqur tushuntiring. Qisqa yozmang!
+- Matn sof o'zbek tilida, ravon va tabiiy gaplardan iborat bo'lsin
 - Chuqur, boy va yuridik/ilmiy jihatdan benuqson tahlil yoz
 - Savol-Javob formatida emas, to'g'ridan-to'g'ri jiddiy tahlil matni bo'lsin
 - Hech qanday belgi ishlatma: yulduzcha (*), reshyotka (#), tag (__), emoji
@@ -154,11 +155,12 @@ MUHIM QOIDALAR:
         return None, None
     
     refine_prompt = f"""
-Quyidagi antidoping haqidagi postni tahlil qilib, uni yanada faktlarga, ilmiy dalillarga va chuqur ma'lumotlarga boy qilib qayta yoz. 
-Xatolarni tuzat, takrorlarni olib tash. Matnni podkast qilib o'qishga moslashtir. 
-Yetarlicha boy va ilmiy jihatdan kuchli tahlil bo'lsin (3 dan 4 daqiqalik nutq).
+Quyidagi antidoping haqidagi qoralamani tahlil qilib, uni yanada faktlarga, ilmiy dalillarga va chuqur ma'lumotlarga boy qilib mukammal holatga keltir. 
+Xatolarni tuzat, takrorlarni olib tashla. Matnni podkast qilib o'qishga moslashtir, lekin uni umuman QISQARTIRMA! Asl hajmini saqlab qol va yanada kengaytir.
+Yetarlicha boy va ilmiy jihatdan kuchli tahlil bo'lsin (kamida 5-6 daqiqalik nutq bo'lishi shart).
 
 MUHIM QOIDALAR:
+- Matnni umuman qisqartirma, u kamida 800-1000 so'zdan iborat mukammal tahlil bo'lishi shart.
 - Hech qanday belgi ishlatma: yulduzcha (*), reshyotka (#), tag (__), emoji
 - Raqamlarni so'z bilan yoz
 - "DIQQAT PROFESSIONAL ANTIDOPING TAHLILI" kabi eski qoliplarni ishlatma
