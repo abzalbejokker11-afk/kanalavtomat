@@ -7,7 +7,7 @@ from kv_storage import kv_get, kv_set
 
 # Konfiguratsiya
 NEWS_API_KEY = "a32f89385b7d42b08f95f1110c5a88ee"
-CACHE_DURATION_HOURS = 4
+CACHE_DURATION_HOURS = 24
 
 def get_cached_data(key):
     try:
@@ -85,27 +85,27 @@ def get_arxiv_papers(query="all:\"doping in sports\" OR all:\"WADA\"", max_resul
         return "Ilmiy baza hozircha yopiq."
 
 def get_news(query="WADA OR doping", language='en'):
-    """NewsAPI orqali yangiliklar olish"""
-    cache_key = f"news_{query}_{language}"
+    """DuckDuckGo orqali mutlaqo tekin va limitsiz yangiliklar olish"""
+    cache_key = f"ddg_news_{query}_{language}"
     cached = get_cached_data(cache_key)
     if cached: return cached
     
     try:
-        from newsapi import NewsApiClient
-        newsapi = NewsApiClient(api_key=NEWS_API_KEY)
-        top_headlines = newsapi.get_everything(q=query, language=language, sort_by='publishedAt', page_size=3)
-        
+        from duckduckgo_search import DDGS
+        with DDGS() as ddgs:
+            results = list(ddgs.news(query, max_results=3))
+            
         news_context = ""
-        for article in top_headlines.get('articles', []):
-            title = article.get('title')
-            desc = article.get('description')
+        for article in results:
+            title = article.get('title', '')
+            desc = article.get('body', '')
             news_context += f"- {title}: {desc}\n"
             
         result = news_context if news_context else "So'nggi 24 soat ichida yirik yangiliklar chiqmadi."
         set_cached_data(cache_key, result)
         return result
     except Exception as e:
-        print(f"NewsAPI xatosi: {e}")
+        print(f"DDGS News xatosi: {e}")
         return "Yangiliklar bazasi vaqtincha ishlamayapti."
 
 if __name__ == "__main__":
