@@ -53,30 +53,34 @@ def call_groq(prompt_text):
     return None
 
 def call_gemini(prompt_text):
-    models = ["gemini-1.5-flash", "gemini-1.5-pro"]
+    models = ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-pro"]
     for model in models:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
-            payload = {"contents": [{"parts": [{"text": prompt_text}]}], "generationConfig": {"temperature": 0.9}}
+            payload = {"contents": [{"parts": [{"text": prompt_text}]}], "generationConfig": {"temperature": 0.9, "maxOutputTokens": 2048}}
             resp = requests.post(url, json=payload, timeout=90)
             if resp.status_code == 200:
                 print(f"  Gemini ({model}) muvaffaqiyatli!")
                 return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+            else:
+                print(f"  Gemini ({model}) xato: {resp.status_code} - {resp.text}")
         except Exception as e:
             print(f"  Gemini ({model}) xato: {e}")
     return None
 
 def call_openrouter(prompt_text):
-    models = ["anthropic/claude-3-haiku", "openai/gpt-4o-mini"]
+    models = ["anthropic/claude-haiku-4.5", "openai/gpt-4o-mini"]
     for model in models:
         try:
             url = "https://openrouter.ai/api/v1/chat/completions"
             headers = {"Authorization": f"Bearer {OPENROUTER_API_KEY}", "Content-Type": "application/json"}
-            payload = {"model": model, "messages": [{"role": "user", "content": prompt_text}]}
+            payload = {"model": model, "messages": [{"role": "user", "content": prompt_text}], "max_tokens": 1500}
             resp = requests.post(url, headers=headers, json=payload, timeout=90)
             if resp.status_code == 200:
                 print(f"  OpenRouter ({model}) muvaffaqiyatli!")
                 return resp.json()["choices"][0]["message"]["content"].strip()
+            else:
+                print(f"  OpenRouter ({model}) xato: {resp.status_code} - {resp.text}")
         except Exception as e:
             print(f"  OpenRouter ({model}) xato: {e}")
     return None
@@ -147,7 +151,7 @@ MUHIM QOIDALAR:
     first_draft = ask_ai(prompt)
     if not first_draft:
         print("Hech bir AI ishlamadi, oflayn zaxiraga o'tilmoqda.")
-        return None
+        return None, None
     
     refine_prompt = f"""
 Quyidagi antidoping haqidagi postni tahlil qilib, uni yanada faktlarga, ilmiy dalillarga va chuqur ma'lumotlarga boy qilib qayta yoz. 
