@@ -58,7 +58,7 @@ def get_reddit_discussions(query="doping WADA", limit=3):
     except Exception:
         return "Muhokamalar mavjud emas."
 
-def get_arxiv_papers(query="all:\"doping in sports\" OR all:\"WADA\"", max_results=2):
+def get_arxiv_papers(query="all:\"anti-doping\" OR all:\"WADA sport\"", max_results=2):
     """ArXiv'dan ilmiy va tarixiy kontekst olish"""
     cache_key = f"arxiv_{query}_{max_results}"
     cached = get_cached_data(cache_key)

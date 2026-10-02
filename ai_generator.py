@@ -38,7 +38,7 @@ def call_freellmapi(prompt_text):
     return None
 
 def call_groq(prompt_text):
-    models = ["llama-3.3-70b-versatile", "mixtral-8x7b-32768", "gemma2-9b-it"]
+    models = ["qwen/qwen3.8-27b", "openai/gpt-oss-120b", "allam-2-7b"]
     for model in models:
         try:
             url = "https://api.groq.com/openai/v1/chat/completions"
