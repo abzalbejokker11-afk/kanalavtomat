@@ -28,8 +28,11 @@ async def main():
     # APScheduler orqali vaqtga biriktirilgan vazifalarni o'rnatish
     scheduler = AsyncIOScheduler()
     
-    # Aniq belgilangan soatlarda (09:00, 13:00, 17:00, 21:00) post yuborish
-    scheduler.add_job(async_post_job, 'cron', hour='9,13,17,21', minute=0, args=[bot])
+    # Oddiy rasm+audio postlar (09:00, 13:00, 21:00)
+    scheduler.add_job(async_post_job, 'cron', hour='9,13,21', minute=0, args=[bot, False])
+    
+    # KUNIGA 1 TA MAXSUS VIDEO (YouTube Shorts formatida) - 17:00 da
+    scheduler.add_job(async_post_job, 'cron', hour='17', minute=0, args=[bot, True])
     
     scheduler.start()
     

@@ -28,3 +28,38 @@ def create_audio(text):
     except Exception as e:
         print(f"Ovoz yaratishda xatolik: {e}")
         return None, str(e)
+
+def create_mp4(image_url, audio_path, output_path="temp_video.mp4"):
+    import subprocess
+    import imageio_ffmpeg
+    import requests
+    import os
+    try:
+        print("1. Rasm yuklanmoqda (Video uchun)...")
+        img_data = requests.get(image_url).content
+        with open("temp_image.jpg", "wb") as f:
+            f.write(img_data)
+            
+        print("2. FFMPEG orqali video yasalmoqda...")
+        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+        
+        cmd = [
+            ffmpeg_exe, "-y",
+            "-loop", "1", "-i", "temp_image.jpg",
+            "-i", audio_path,
+            "-c:v", "libx264", "-tune", "stillimage",
+            "-c:a", "aac", "-b:a", "192k",
+            "-pix_fmt", "yuv420p",
+            "-shortest", output_path
+        ]
+        
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        print("Video muvaffaqiyatli yaratildi!")
+        
+        if os.path.exists("temp_image.jpg"):
+            os.remove("temp_image.jpg")
+            
+        return output_path
+    except Exception as e:
+        print(f"Video yaratishda xato: {e}")
+        return None
