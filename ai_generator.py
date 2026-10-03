@@ -22,7 +22,7 @@ def save_history(history):
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "Asz5fZkEQUQwIMZhH1wBqqeMy3o9fbcxGoQ_AIbUVOCK6NR8bA.QA"[::-1])
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "ae2fe44c7128ff66992a0563c1952d09c7108cb07d91f4a7596866e9e80f08e4-1v-ro-ks"[::-1])
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "L6wbnT7gYoNW2IOpwTE8XVE6YF3bydGWP3LiVie18UpNT7pnBqj5_ksg"[::-1])
-FREELLM_API_KEY = "freellmapi-8ef153fa7d79ce14d97462a852f3145893a07d76202d6527"
+FREELLM_API_KEY = os.environ.get("FREELLM_API_KEY", "7256d20267d70a3985413f258a26479d41ec97d7af351fe8-ipamlleerf"[::-1])
 
 def call_freellmapi(prompt_text):
     try:
@@ -43,7 +43,7 @@ def call_groq(prompt_text):
         try:
             url = "https://api.groq.com/openai/v1/chat/completions"
             headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
-            payload = {"model": model, "messages": [{"role": "user", "content": prompt_text}]}
+            payload = {"model": model, "messages": [{"role": "user", "content": prompt_text}], "max_tokens": 4096}
             resp = requests.post(url, headers=headers, json=payload, timeout=40)
             if resp.status_code == 200:
                 print(f"  Groq ({model}) muvaffaqiyatli!")
@@ -57,7 +57,7 @@ def call_gemini(prompt_text):
     for model in models:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
-            payload = {"contents": [{"parts": [{"text": prompt_text}]}], "generationConfig": {"temperature": 0.9, "maxOutputTokens": 2048}}
+            payload = {"contents": [{"parts": [{"text": prompt_text}]}], "generationConfig": {"temperature": 0.9, "maxOutputTokens": 4096}}
             resp = requests.post(url, json=payload, timeout=90)
             if resp.status_code == 200:
                 print(f"  Gemini ({model}) muvaffaqiyatli!")
@@ -74,7 +74,7 @@ def call_openrouter(prompt_text):
         try:
             url = "https://openrouter.ai/api/v1/chat/completions"
             headers = {"Authorization": f"Bearer {OPENROUTER_API_KEY}", "Content-Type": "application/json"}
-            payload = {"model": model, "messages": [{"role": "user", "content": prompt_text}], "max_tokens": 1500}
+            payload = {"model": model, "messages": [{"role": "user", "content": prompt_text}], "max_tokens": 4096}
             resp = requests.post(url, headers=headers, json=payload, timeout=90)
             if resp.status_code == 200:
                 print(f"  OpenRouter ({model}) muvaffaqiyatli!")
@@ -118,11 +118,11 @@ def generate_super_post():
     
     prompt = f"""
 Siz xalqaro antidoping qoidalari (WADA) bo'yicha eng nufuzli huquqshunos, mutaxassis va ilmiy jurnalistsiz.
-Vazifangiz – BUGUNGI MAVZU YO'NALISHI asosida sportchilar uchun o'ta dolzarb, mutlaqo qonuniy va xatosiz mukammal post yozish. 
+Vazifangiz – BUGUNGI MAVZU YO'NALISHI asosida sportchilar uchun o'ta dolzarb, mutlaqo qonuniy va juda ham keng qamrovli mukammal post yozish. 
 Barcha ma'lumotlar rasmiy WADA kodeksiga va huquqiy me'yorlarga yuz foiz mos kelishi shart.
 
 BUGUNGI ASOSIY MAVZU YO'NALISHI: "{current_focus}"
-(Aynan shu mavzuni chuqur ochib bering, boshqa mavzularga chalg'imang!)
+(Aynan shu mavzuni juda chuqur va maydalab ochib bering, boshqa mavzularga chalg'imang!)
 
 DIQQAT! Quyidagi mavzular oldin yozilgan, ularni mutlaqo TAKRORLAMANG:
 {past_context}
@@ -134,14 +134,14 @@ Manbalar:
 
 Post O'ZBEK TILIDA quyidagi tuzilishda bo'lsin:
 - Sarlavha (Jiddiy va e'tiborni tortuvchi)
-- Kirish (Huquqiy muammo yoki dolzarb savol)
-- Asosiy tahlil (3 ta band, har biri rasmiy qoidalar va ilmiy dalillar bilan tasdiqlangan)
+- Kirish (Huquqiy muammo yoki dolzarb savol - juda batafsil)
+- Asosiy tahlil (Kamida 5 ta katta band, har biri rasmiy qoidalar, hayotiy misollar va ilmiy dalillar bilan batafsil tushuntirilgan)
 - Xulosa va huquqiy ogohlantirish (Qat'iy javobgarlik qoidasi eslatilsin)
 
 MUHIM QOIDALAR:
-- Matn juda keng qamrovli, kamida 800-1000 so'zdan iborat bo'lsin. Har bir qismni chuqur tushuntiring. Qisqa yozmang!
+- Matn juda keng qamrovli, kamida 1500-2000 so'zdan iborat bo'lsin. Qisqa yozsangiz qabul qilinmaydi! Har bir detalni maydalab tushuntiring.
 - Matn sof o'zbek tilida, ravon va tabiiy gaplardan iborat bo'lsin
-- Chuqur, boy va yuridik/ilmiy jihatdan benuqson tahlil yoz
+- Chuqur, boy va yuridik/ilmiy jihatdan benuqson tahlil yoz (bu kamida 10-15 daqiqalik podkast bo'ladi)
 - Savol-Javob formatida emas, to'g'ridan-to'g'ri jiddiy tahlil matni bo'lsin
 - Hech qanday belgi ishlatma: yulduzcha (*), reshyotka (#), tag (__), emoji
 - Raqamlarni so'z bilan yoz (masalan: 4 emas, to'rt)
@@ -155,12 +155,12 @@ MUHIM QOIDALAR:
         return None, None
     
     refine_prompt = f"""
-Quyidagi antidoping haqidagi qoralamani tahlil qilib, uni yanada faktlarga, ilmiy dalillarga va chuqur ma'lumotlarga boy qilib mukammal holatga keltir. 
-Xatolarni tuzat, takrorlarni olib tashla. Matnni podkast qilib o'qishga moslashtir, lekin uni umuman QISQARTIRMA! Asl hajmini saqlab qol va yanada kengaytir.
-Yetarlicha boy va ilmiy jihatdan kuchli tahlil bo'lsin (kamida 5-6 daqiqalik nutq bo'lishi shart).
+Quyidagi antidoping haqidagi qoralamani tahlil qilib, uni yanada faktlarga, ilmiy dalillarga, hayotiy misollarga va chuqur ma'lumotlarga boy qilib juda ham uzun holatga keltir. 
+Matnni podkast qilib o'qishga moslashtir. Eng muhimi: QISQARTIRMA! Matnni kamida yana 2 barobarga KENGAYTIR.
+Yetarlicha boy va ilmiy jihatdan kuchli tahlil bo'lsin (kamida 15 daqiqalik yirik nutq bo'lishi shart).
 
 MUHIM QOIDALAR:
-- Matnni umuman qisqartirma, u kamida 800-1000 so'zdan iborat mukammal tahlil bo'lishi shart.
+- Matnni umuman qisqartirma, u kamida 1500-2000 so'zdan iborat dostondek mukammal tahlil bo'lishi shart.
 - Hech qanday belgi ishlatma: yulduzcha (*), reshyotka (#), tag (__), emoji
 - Raqamlarni so'z bilan yoz
 - "DIQQAT PROFESSIONAL ANTIDOPING TAHLILI" kabi eski qoliplarni ishlatma
