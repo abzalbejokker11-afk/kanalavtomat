@@ -199,6 +199,40 @@ Qoralama matn:
     
     return final_post, image_prompt
 
+def generate_quiz_from_text(post_text):
+    import json
+    prompt = f"""
+Siz xalqaro antidoping mutaxassisisiz. Quyidagi matn asosida bitta qiyin va mantiqiy Telegram Quiz (Viktorina) yarating.
+O'quvchi matnni diqqat bilan o'qigan bo'lsagina javob bera olsin.
+Qoidalar:
+- Faqat 1 ta to'g'ri javob bo'lsin.
+- 3 ta yoki 4 ta variant (options) bo'lsin.
+- Variantlar qisqa va aniq bo'lsin.
+- Javobning qisqacha tushuntirishi (explanation) bo'lsin (maksimal 200 belgi).
+- correct_option_id bu 0 dan boshlanadigan to'g'ri javob indeksi. (masalan, birinchi variant to'g'ri bo'lsa 0).
+
+Javobni FAQAT ushbu JSON formatida qaytaring, boshqa hech qanday so'z qo'shmang (```json kabi belgilarsiz):
+{{
+    "question": "Taylolxot ichib ushlangan sportchini kim oqlaydi?",
+    "options": ["Shifokor", "Murabbiy", "Hech kim (4 yil sanksiya)", "WADA rahbari"],
+    "correct_option_id": 2,
+    "explanation": "WADAning 'Qat'iy javobgarlik' qoidasiga ko'ra, sportchi o'z tanasiga kirgan modda uchun o'zi javobgar."
+}}
+
+Matn:
+{post_text[:2500]}
+"""
+    result = ask_ai(prompt)
+    if not result:
+        return None
+    
+    result = result.replace("```json", "").replace("```", "").strip()
+    try:
+        return json.loads(result)
+    except Exception as e:
+        print("Quiz JSON parse xato:", e)
+        return None
+
 if __name__ == "__main__":
     post, img_p = generate_super_post()
     print("=== FINAL POST ===")

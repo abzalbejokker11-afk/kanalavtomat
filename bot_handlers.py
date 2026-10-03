@@ -17,6 +17,33 @@ async def set_bot_commands(bot: Bot):
 
 from urllib.parse import quote
 from aiogram.types import URLInputFile
+from ai_generator import generate_quiz_from_text
+
+async def delayed_quiz_task(bot: Bot, channel_id: str, post_text: str):
+    print("Quiz uchun 15 daqiqa kutilmoqda...")
+    await asyncio.sleep(900)  # 15 daqiqa
+    print("Quiz yaratilmoqda...")
+    
+    loop = asyncio.get_event_loop()
+    quiz_data = await loop.run_in_executor(None, generate_quiz_from_text, post_text)
+    
+    if not quiz_data:
+        print("Quiz yaratish muvaffaqiyatsiz.")
+        return
+        
+    try:
+        await bot.send_poll(
+            chat_id=channel_id,
+            question="🧠 Bilimingizni sinab ko'ring:\n\n" + quiz_data.get("question", "Savol topilmadi"),
+            options=quiz_data.get("options", []),
+            type="quiz",
+            correct_option_id=quiz_data.get("correct_option_id", 0),
+            explanation=quiz_data.get("explanation", ""),
+            is_anonymous=True
+        )
+        print("Quiz kanalga yuborildi!")
+    except Exception as e:
+        print(f"Quiz yuborishda xato: {e}")
 
 async def async_post_job(bot: Bot = None, make_video: bool = False):
     try:
@@ -77,6 +104,10 @@ async def async_post_job(bot: Bot = None, make_video: bool = False):
                 os.remove(audio_file)
             except Exception:
                 pass
+                
+            # Quiz taymeri ishga tushirildi
+            asyncio.create_task(delayed_quiz_task(bot, CHANNEL_ID, text))
+            
             return True, "✅ Muvaffaqiyatli"
         return False, f"Ovoz yaratilmadi. Xato: {v_err}"
     except Exception as e:
