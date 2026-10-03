@@ -53,7 +53,7 @@ def call_groq(prompt_text):
     return None
 
 def call_gemini(prompt_text):
-    models = ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-pro"]
+    models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"]
     for model in models:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
