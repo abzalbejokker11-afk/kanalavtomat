@@ -139,10 +139,11 @@ Post O'ZBEK TILIDA quyidagi tuzilishda bo'lsin:
 - Xulosa va huquqiy ogohlantirish (Qat'iy javobgarlik qoidasi eslatilsin)
 
 MUHIM QOIDALAR:
-- Matn juda keng qamrovli, kamida 1500-2000 so'zdan iborat bo'lsin. Qisqa yozsangiz qabul qilinmaydi! Har bir detalni maydalab tushuntiring.
+- Matn juda keng qamrovli, 800-1000 so'z atrofida bo'lsin. Har bir detalni maydalab tushuntiring.
 - Matn sof o'zbek tilida, ravon va tabiiy gaplardan iborat bo'lsin
-- Chuqur, boy va yuridik/ilmiy jihatdan benuqson tahlil yoz (bu kamida 10-15 daqiqalik podkast bo'ladi)
+- Chuqur, boy va yuridik/ilmiy jihatdan benuqson tahlil yoz (bu taxminan 6-8 daqiqalik podkast bo'ladi)
 - Savol-Javob formatida emas, to'g'ridan-to'g'ri jiddiy tahlil matni bo'lsin
+- Xulosa qismi albatta tugallangan gap bilan yopilishi shart (hech qachon chala qolmasin).
 - Hech qanday belgi ishlatma: yulduzcha (*), reshyotka (#), tag (__), emoji
 - Raqamlarni so'z bilan yoz (masalan: 4 emas, to'rt)
 - Matn podkast uchun ovozga aylantiriladi, shuning uchun ravon va rasmiy tilda bo'lsin
@@ -160,12 +161,13 @@ Matnni podkast qilib o'qishga moslashtir. Eng muhimi: QISQARTIRMA! Matnni kamida
 Yetarlicha boy va ilmiy jihatdan kuchli tahlil bo'lsin (kamida 15 daqiqalik yirik nutq bo'lishi shart).
 
 MUHIM QOIDALAR:
-- Matnni umuman qisqartirma, u kamida 1500-2000 so'zdan iborat dostondek mukammal tahlil bo'lishi shart.
+- Matnni umuman qisqartirma, u taxminan 800-1000 so'zdan iborat mukammal tahlil bo'lishi shart.
 - Hech qanday belgi ishlatma: yulduzcha (*), reshyotka (#), tag (__), emoji
 - Raqamlarni so'z bilan yoz
 - "DIQQAT PROFESSIONAL ANTIDOPING TAHLILI" kabi eski qoliplarni ishlatma
 - Savol-Javob formatida emas, to'g'ridan-to'g'ri jiddiy tahlil matni bo'lsin
 - Matn sof o'zbek tilida, ravon va tabiiy gaplardan iborat bo'lsin
+- Matn oxiri albatta chiroyli xulosa bilan yopilsin (chala qolmasin).
 
 Qoralama matn:
 {first_draft}
